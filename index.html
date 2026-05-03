@@ -33,18 +33,19 @@
     controls.maxDistance = 200000;
 
     // --- Lighting ---
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
     sun.position.set(50000, 20000, 30000);
     scene.add(sun);
 
     // --- Earth ---
     const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = 'anonymous';
     const earthMesh = new THREE.Mesh(
       new THREE.SphereGeometry(6371, 64, 64),
       new THREE.MeshPhongMaterial({
         map: textureLoader.load(
-          'https://unpkg.com/three@0.134.0/examples/textures/planets/earth_atmos_2048.jpg'
+          'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg'
         )
       })
     );
@@ -58,6 +59,41 @@
     const issGlow = new THREE.PointLight(0x00ffff, 2, 3000);
     scene.add(issMesh);
     scene.add(issGlow);
+
+    // --- Orbital trail ---
+    const TRAIL_LENGTH = 200;
+    const trailPositions = new Float32Array(TRAIL_LENGTH * 3);
+    const trailGeometry = new THREE.BufferGeometry();
+    trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+    trailGeometry.setDrawRange(0, 0);
+    const trailLine = new THREE.Line(
+      trailGeometry,
+      new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true })
+    );
+    scene.add(trailLine);
+
+    let trailCount = 0;
+    let trailHead = 0;
+
+    function addTrailPoint(x, y, z) {
+      const i = trailHead * 3;
+      trailPositions[i]     = x;
+      trailPositions[i + 1] = y;
+      trailPositions[i + 2] = z;
+      trailHead = (trailHead + 1) % TRAIL_LENGTH;
+      trailCount = Math.min(trailCount + 1, TRAIL_LENGTH);
+
+      const ordered = new Float32Array(trailCount * 3);
+      for (let j = 0; j < trailCount; j++) {
+        const src = ((trailHead - trailCount + j + TRAIL_LENGTH) % TRAIL_LENGTH) * 3;
+        ordered[j * 3]     = trailPositions[src];
+        ordered[j * 3 + 1] = trailPositions[src + 1];
+        ordered[j * 3 + 2] = trailPositions[src + 2];
+      }
+      trailGeometry.setAttribute('position', new THREE.BufferAttribute(ordered, 3));
+      trailGeometry.setDrawRange(0, trailCount);
+      trailGeometry.attributes.position.needsUpdate = true;
+    }
 
     // --- Resize ---
     window.addEventListener('resize', () => {
@@ -82,8 +118,10 @@
       const pos = pv.position;
       if (!pos) return;
 
-      issMesh.position.set(pos.x, pos.z, -pos.y);
-      issGlow.position.copy(issMesh.position);
+      const x = pos.x, y = pos.z, z = -pos.y;
+      issMesh.position.set(x, y, z);
+      issGlow.position.set(x, y, z);
+      addTrailPoint(x, y, z);
 
       console.log('ISS (km)  x:', pos.x.toFixed(1), ' y:', pos.y.toFixed(1), ' z:', pos.z.toFixed(1));
     }
@@ -97,6 +135,17 @@
       if (!iss) { console.error('ISS not found'); return; }
 
       issRec = satellite.twoline2satrec(iss.line1, iss.line2);
+
+      // Pre-populate trail with one full orbit (~92 min) of past positions
+      const now = Date.now();
+      const ORBIT_MS = 92 * 60 * 1000;
+      for (let t = now - ORBIT_MS; t <= now; t += 30000) {
+        const pv = satellite.propagate(issRec, new Date(t));
+        if (pv.position) {
+          addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
+        }
+      }
+
       updateISSMarker();
       setInterval(updateISSMarker, 5000);
     }
