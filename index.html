@@ -24,7 +24,6 @@
       color: #fff;
       z-index: 10;
     }
-
     #hud .hud-title {
       font-size: 11px;
       letter-spacing: 0.18em;
@@ -32,7 +31,6 @@
       color: rgba(255,255,255,0.45);
       margin-bottom: 10px;
     }
-
     #hud .hud-name {
       font-size: 15px;
       font-weight: bold;
@@ -40,7 +38,6 @@
       letter-spacing: 0.06em;
       margin-bottom: 14px;
     }
-
     #hud .hud-row {
       display: flex;
       justify-content: space-between;
@@ -48,7 +45,6 @@
       margin-bottom: 7px;
       gap: 16px;
     }
-
     #hud .hud-label {
       font-size: 10px;
       letter-spacing: 0.12em;
@@ -56,20 +52,17 @@
       color: rgba(255,255,255,0.45);
       flex-shrink: 0;
     }
-
     #hud .hud-value {
       font-size: 13px;
       color: #e0f7ff;
       text-align: right;
       font-variant-numeric: tabular-nums;
     }
-
     #hud .hud-divider {
       border: none;
       border-top: 1px solid rgba(255,255,255,0.1);
       margin: 10px 0;
     }
-
     #hud .hud-dot {
       display: inline-block;
       width: 7px;
@@ -80,7 +73,6 @@
       box-shadow: 0 0 6px #00ffff;
       animation: pulse 2s ease-in-out infinite;
     }
-
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.3; }
@@ -140,6 +132,29 @@
     sun.position.set(50000, 20000, 30000);
     scene.add(sun);
 
+    // --- Star field ---
+    (function buildStars() {
+      const COUNT = 6000;
+      const positions = new Float32Array(COUNT * 3);
+      for (let i = 0; i < COUNT; i++) {
+        const r = 400000 + Math.random() * 200000;
+        const theta = Math.random() * 2 * Math.PI;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 300,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.85
+      })));
+    })();
+
     // --- Earth ---
     const textureLoader = new THREE.TextureLoader();
     textureLoader.crossOrigin = 'anonymous';
@@ -197,7 +212,7 @@
       trailGeometry.attributes.position.needsUpdate = true;
     }
 
-    // --- HUD elements ---
+    // --- HUD ---
     const hudAlt = document.getElementById('hud-alt');
     const hudX   = document.getElementById('hud-x');
     const hudY   = document.getElementById('hud-y');
@@ -209,6 +224,62 @@
       hudX.textContent   = pos.x.toFixed(1) + ' km';
       hudY.textContent   = pos.y.toFixed(1) + ' km';
       hudZ.textContent   = pos.z.toFixed(1) + ' km';
+    }
+
+    // --- All-satellite InstancedMesh ---
+    let satInstancedMesh = null;
+    let satRecords = [];
+    const dummy = new THREE.Object3D();
+    const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+
+    function updateSatelliteInstances() {
+      if (!satInstancedMesh || satRecords.length === 0) return;
+      const now = new Date();
+      for (let i = 0; i < satRecords.length; i++) {
+        const pv = satellite.propagate(satRecords[i], now);
+        const pos = pv.position;
+        if (!pos || isNaN(pos.x)) {
+          satInstancedMesh.setMatrixAt(i, hiddenMatrix);
+        } else {
+          dummy.position.set(pos.x, pos.z, -pos.y);
+          dummy.updateMatrix();
+          satInstancedMesh.setMatrixAt(i, dummy.matrix);
+        }
+      }
+      satInstancedMesh.instanceMatrix.needsUpdate = true;
+    }
+
+    async function initAllSatellites() {
+      const response = await fetch('/api/satellites');
+      if (!response.ok) { console.error('Satellite fetch error:', response.status); return; }
+      const satellites = await response.json();
+
+      satRecords = satellites
+        .filter(s => s.name.trim().toUpperCase() !== 'ISS (ZARYA)')
+        .map(s => {
+          try { return satellite.twoline2satrec(s.line1, s.line2); }
+          catch (e) { return null; }
+        })
+        .filter(Boolean);
+
+      const count = satRecords.length;
+      console.log(`Rendering ${count} satellites via InstancedMesh`);
+
+      satInstancedMesh = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(40, 40, 40),
+        new THREE.MeshBasicMaterial({ color: 0xaaaaaa }),
+        count
+      );
+      satInstancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+      for (let i = 0; i < count; i++) {
+        satInstancedMesh.setMatrixAt(i, hiddenMatrix);
+      }
+      satInstancedMesh.instanceMatrix.needsUpdate = true;
+      scene.add(satInstancedMesh);
+
+      updateSatelliteInstances();
+      setInterval(updateSatelliteInstances, 3000);
     }
 
     // --- Resize ---
@@ -251,14 +322,11 @@
 
       issRec = satellite.twoline2satrec(iss.line1, iss.line2);
 
-      // Pre-populate trail with one full orbit (~92 min) of past positions
       const now = Date.now();
       const ORBIT_MS = 92 * 60 * 1000;
       for (let t = now - ORBIT_MS; t <= now; t += 30000) {
         const pv = satellite.propagate(issRec, new Date(t));
-        if (pv.position) {
-          addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
-        }
+        if (pv.position) addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
       }
 
       updateISSMarker();
@@ -266,6 +334,7 @@
     }
 
     initISS();
+    initAllSatellites();
   </script>
 </body>
 </html>
