@@ -19,7 +19,7 @@
       border: 1px solid rgba(0, 255, 255, 0.25);
       border-radius: 12px;
       padding: 16px 20px;
-      min-width: 220px;
+      width: 250px;
       font-family: 'Courier New', monospace;
       color: #fff;
       z-index: 10;
@@ -32,12 +32,16 @@
       margin-bottom: 10px;
     }
     #hud .hud-name {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: bold;
       color: #00ffff;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
       margin-bottom: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    #hud .hud-name.locked { color: #ff6bff; }
     #hud .hud-row {
       display: flex;
       justify-content: space-between;
@@ -65,20 +69,19 @@
     }
     #hud .hud-dot {
       display: inline-block;
-      width: 7px;
-      height: 7px;
+      width: 7px; height: 7px;
       background: #00ffff;
       border-radius: 50%;
       margin-right: 7px;
       box-shadow: 0 0 6px #00ffff;
       animation: pulse 2s ease-in-out infinite;
     }
-
+    #hud .hud-dot.locked { background: #ff6bff; box-shadow: 0 0 6px #ff6bff; }
     #hud .hud-badge-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 12px;
+      margin-top: 10px;
       padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
@@ -89,8 +92,8 @@
       color: rgba(255,255,255,0.45);
     }
     #hud .hud-badge {
-      background: rgba(255, 204, 0, 0.15);
-      border: 1px solid rgba(255, 204, 0, 0.45);
+      background: rgba(255,204,0,0.15);
+      border: 1px solid rgba(255,204,0,0.45);
       border-radius: 20px;
       padding: 2px 10px;
       font-size: 12px;
@@ -99,6 +102,75 @@
       letter-spacing: 0.06em;
       font-variant-numeric: tabular-nums;
     }
+
+    /* --- interactive controls (pointer-events re-enabled) --- */
+    .hud-interactive { pointer-events: auto; }
+
+    #search-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      pointer-events: auto;
+    }
+    #search-input {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 5px 8px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      outline: none;
+    }
+    #search-input::placeholder { color: rgba(255,255,255,0.3); }
+    #search-input:focus { border-color: rgba(255,100,255,0.6); }
+    .hud-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 6px;
+      padding: 5px 9px;
+      color: rgba(255,255,255,0.75);
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .hud-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+    .hud-btn.active { background: rgba(255,100,255,0.2); border-color: rgba(255,100,255,0.6); color: #ff6bff; }
+    #search-status {
+      font-size: 10px;
+      color: rgba(255,100,255,0.8);
+      margin-top: 5px;
+      min-height: 14px;
+      pointer-events: none;
+    }
+    #refresh-row {
+      margin-top: 8px;
+      pointer-events: auto;
+    }
+    #refresh-btn {
+      width: 100%;
+      text-align: center;
+      background: rgba(0,255,255,0.06);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 6px;
+      padding: 6px;
+      color: rgba(0,255,255,0.7);
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: background 0.15s;
+    }
+    #refresh-btn:hover { background: rgba(0,255,255,0.14); }
+    #refresh-btn:disabled { opacity: 0.4; cursor: default; }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.3; }
@@ -108,10 +180,10 @@
       position: fixed;
       pointer-events: none;
       display: none;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0,0,0,0.55);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 204, 0, 0.4);
+      border: 1px solid rgba(255,204,0,0.4);
       border-radius: 8px;
       padding: 9px 13px;
       font-family: 'Courier New', monospace;
@@ -121,17 +193,8 @@
       white-space: nowrap;
       transform: translate(14px, -50%);
     }
-    #tooltip .tt-name {
-      font-weight: bold;
-      color: #ffcc00;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
-    }
-    #tooltip .tt-alt {
-      font-size: 11px;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.08em;
-    }
+    #tooltip .tt-name { font-weight: bold; color: #ffcc00; letter-spacing: 0.05em; margin-bottom: 4px; }
+    #tooltip .tt-alt  { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
@@ -141,38 +204,42 @@
 
   <div id="tooltip">
     <div class="tt-name" id="tt-name"></div>
-    <div class="tt-alt" id="tt-alt"></div>
+    <div class="tt-alt"  id="tt-alt"></div>
   </div>
 
   <div id="hud">
     <div class="hud-title">Live Tracking</div>
-    <div class="hud-name"><span class="hud-dot"></span>ISS (ZARYA)</div>
+    <div class="hud-name" id="hud-name"><span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)</div>
     <hr class="hud-divider">
     <div class="hud-row">
       <span class="hud-label">Altitude</span>
       <span class="hud-value" id="hud-alt">— km</span>
     </div>
     <hr class="hud-divider">
-    <div class="hud-row">
-      <span class="hud-label">X</span>
-      <span class="hud-value" id="hud-x">—</span>
-    </div>
-    <div class="hud-row">
-      <span class="hud-label">Y</span>
-      <span class="hud-value" id="hud-y">—</span>
-    </div>
-    <div class="hud-row">
-      <span class="hud-label">Z</span>
-      <span class="hud-value" id="hud-z">—</span>
-    </div>
+    <div class="hud-row"><span class="hud-label">X</span><span class="hud-value" id="hud-x">—</span></div>
+    <div class="hud-row"><span class="hud-label">Y</span><span class="hud-value" id="hud-y">—</span></div>
+    <div class="hud-row"><span class="hud-label">Z</span><span class="hud-value" id="hud-z">—</span></div>
     <div class="hud-badge-row">
       <span class="hud-badge-label">Tracking</span>
       <span class="hud-badge" id="hud-count">—</span>
     </div>
+
+    <!-- Search -->
+    <div id="search-row">
+      <input id="search-input" type="text" placeholder="Search satellite…" autocomplete="off">
+      <button class="hud-btn" id="search-btn">Find</button>
+      <button class="hud-btn" id="clear-btn" style="display:none">✕</button>
+    </div>
+    <div id="search-status"></div>
+
+    <!-- Refresh -->
+    <div id="refresh-row">
+      <button id="refresh-btn">↺ Refresh Data</button>
+    </div>
   </div>
 
   <script>
-    // --- Scene ---
+    // ── Scene ──────────────────────────────────────────────────────────────
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
@@ -185,54 +252,47 @@
     document.body.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 7000;
-    controls.maxDistance = 200000;
+    controls.enableDamping  = true;
+    controls.dampingFactor  = 0.05;
+    controls.minDistance    = 7000;
+    controls.maxDistance    = 200000;
 
-    // --- Lighting ---
+    // ── Lighting ───────────────────────────────────────────────────────────
     scene.add(new THREE.AmbientLight(0xffffff, 1.5));
     const sun = new THREE.DirectionalLight(0xffffff, 0.8);
     sun.position.set(50000, 20000, 30000);
     scene.add(sun);
 
-    // --- Star field ---
+    // ── Stars ──────────────────────────────────────────────────────────────
     (function buildStars() {
-      const COUNT = 6000;
-      const positions = new Float32Array(COUNT * 3);
+      const COUNT = 6000, pos = new Float32Array(COUNT * 3);
       for (let i = 0; i < COUNT; i++) {
         const r = 400000 + Math.random() * 200000;
         const theta = Math.random() * 2 * Math.PI;
-        const phi = Math.acos(2 * Math.random() - 1);
-        positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
-        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-        positions[i * 3 + 2] = r * Math.cos(phi);
+        const phi   = Math.acos(2 * Math.random() - 1);
+        pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+        pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+        pos[i*3+2] = r * Math.cos(phi);
       }
       const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 300,
-        sizeAttenuation: true,
-        transparent: true,
-        opacity: 0.85
+        color: 0xffffff, size: 300, sizeAttenuation: true, transparent: true, opacity: 0.85
       })));
     })();
 
-    // --- Earth ---
+    // ── Earth ──────────────────────────────────────────────────────────────
     const textureLoader = new THREE.TextureLoader();
     textureLoader.crossOrigin = 'anonymous';
     const earthMesh = new THREE.Mesh(
       new THREE.SphereGeometry(6371, 64, 64),
       new THREE.MeshPhongMaterial({
-        map: textureLoader.load(
-          'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg'
-        )
+        map: textureLoader.load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       })
     );
     scene.add(earthMesh);
 
-    // --- ISS marker ---
+    // ── ISS marker ─────────────────────────────────────────────────────────
     const issMesh = new THREE.Mesh(
       new THREE.SphereGeometry(120, 16, 16),
       new THREE.MeshBasicMaterial({ color: 0x00ffff })
@@ -241,71 +301,92 @@
     scene.add(issMesh);
     scene.add(issGlow);
 
-    // --- Orbital trail ---
+    // ── Orbital trail ──────────────────────────────────────────────────────
     const TRAIL_LENGTH = 200;
-    const trailPositions = new Float32Array(TRAIL_LENGTH * 3);
-    const trailGeometry = new THREE.BufferGeometry();
-    trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
-    trailGeometry.setDrawRange(0, 0);
-    const trailLine = new THREE.Line(
-      trailGeometry,
-      new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true })
-    );
-    scene.add(trailLine);
-
-    let trailCount = 0;
-    let trailHead = 0;
+    const trailPos = new Float32Array(TRAIL_LENGTH * 3);
+    const trailGeo = new THREE.BufferGeometry();
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+    trailGeo.setDrawRange(0, 0);
+    scene.add(new THREE.Line(trailGeo,
+      new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true })));
+    let trailCount = 0, trailHead = 0;
 
     function addTrailPoint(x, y, z) {
-      const i = trailHead * 3;
-      trailPositions[i]     = x;
-      trailPositions[i + 1] = y;
-      trailPositions[i + 2] = z;
+      trailPos[trailHead*3]   = x;
+      trailPos[trailHead*3+1] = y;
+      trailPos[trailHead*3+2] = z;
       trailHead = (trailHead + 1) % TRAIL_LENGTH;
       trailCount = Math.min(trailCount + 1, TRAIL_LENGTH);
-
       const ordered = new Float32Array(trailCount * 3);
       for (let j = 0; j < trailCount; j++) {
         const src = ((trailHead - trailCount + j + TRAIL_LENGTH) % TRAIL_LENGTH) * 3;
-        ordered[j * 3]     = trailPositions[src];
-        ordered[j * 3 + 1] = trailPositions[src + 1];
-        ordered[j * 3 + 2] = trailPositions[src + 2];
+        ordered[j*3]   = trailPos[src];
+        ordered[j*3+1] = trailPos[src+1];
+        ordered[j*3+2] = trailPos[src+2];
       }
-      trailGeometry.setAttribute('position', new THREE.BufferAttribute(ordered, 3));
-      trailGeometry.setDrawRange(0, trailCount);
-      trailGeometry.attributes.position.needsUpdate = true;
+      trailGeo.setAttribute('position', new THREE.BufferAttribute(ordered, 3));
+      trailGeo.setDrawRange(0, trailCount);
+      trailGeo.attributes.position.needsUpdate = true;
     }
 
-    // --- HUD ---
-    const hudAlt = document.getElementById('hud-alt');
-    const hudX   = document.getElementById('hud-x');
-    const hudY   = document.getElementById('hud-y');
-    const hudZ   = document.getElementById('hud-z');
+    // ── Search highlight marker ────────────────────────────────────────────
+    const hlMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(180, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xff6bff })
+    );
+    const hlGlow = new THREE.PointLight(0xff6bff, 3, 4000);
+    hlMesh.visible = false;
+    hlGlow.visible = false;
+    scene.add(hlMesh);
+    scene.add(hlGlow);
 
-    function updateHUD(pos) {
+    // ── HUD refs ───────────────────────────────────────────────────────────
+    const hudNameEl = document.getElementById('hud-name');
+    const hudDotEl  = document.getElementById('hud-dot');
+    const hudAlt    = document.getElementById('hud-alt');
+    const hudX      = document.getElementById('hud-x');
+    const hudY      = document.getElementById('hud-y');
+    const hudZ      = document.getElementById('hud-z');
+
+    let lockedSatIdx = -1;   // -1 = show ISS, ≥0 = locked to this satellite index
+
+    function updateHUD(pos, name) {
       const altitude = Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371;
       hudAlt.textContent = altitude.toFixed(1) + ' km';
       hudX.textContent   = pos.x.toFixed(1) + ' km';
       hudY.textContent   = pos.y.toFixed(1) + ' km';
       hudZ.textContent   = pos.z.toFixed(1) + ' km';
+      if (name) {
+        hudNameEl.innerHTML = '';
+        const dot = document.createElement('span');
+        dot.className = 'hud-dot locked';
+        dot.id = 'hud-dot';
+        hudNameEl.appendChild(dot);
+        hudNameEl.appendChild(document.createTextNode(name));
+        hudNameEl.classList.add('locked');
+      }
     }
 
-    // --- All-satellite InstancedMesh ---
+    function resetHUDToISS() {
+      hudNameEl.innerHTML = '<span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)';
+      hudNameEl.classList.remove('locked');
+    }
+
+    // ── All-satellite InstancedMesh ────────────────────────────────────────
     let satInstancedMesh = null;
-    let satRecords = [];
-    let satNames = [];
-    let satLastPositions = [];
-    const dummy = new THREE.Object3D();
-    const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+    let satRecords = [], satNames = [], satLastPositions = [];
+    let allSatelliteData = [];
+    const dummy       = new THREE.Object3D();
+    const hiddenMat   = new THREE.Matrix4().makeScale(0, 0, 0);
 
     function updateSatelliteInstances() {
-      if (!satInstancedMesh || satRecords.length === 0) return;
+      if (!satInstancedMesh) return;
       const now = new Date();
       for (let i = 0; i < satRecords.length; i++) {
-        const pv = satellite.propagate(satRecords[i], now);
+        const pv  = satellite.propagate(satRecords[i], now);
         const pos = pv.position;
         if (!pos || isNaN(pos.x)) {
-          satInstancedMesh.setMatrixAt(i, hiddenMatrix);
+          satInstancedMesh.setMatrixAt(i, hiddenMat);
           satLastPositions[i] = null;
         } else {
           dummy.position.set(pos.x, pos.z, -pos.y);
@@ -315,20 +396,32 @@
         }
       }
       satInstancedMesh.instanceMatrix.needsUpdate = true;
+
+      // update locked satellite highlight
+      if (lockedSatIdx >= 0) {
+        const lpos = satLastPositions[lockedSatIdx];
+        if (lpos) {
+          hlMesh.position.set(lpos.x, lpos.z, -lpos.y);
+          hlGlow.position.copy(hlMesh.position);
+          updateHUD(lpos);
+        }
+      }
     }
 
-    async function initAllSatellites() {
-      const response = await fetch('/api/satellites');
-      if (!response.ok) { console.error('Satellite fetch error:', response.status); return; }
-      const satellites = await response.json();
+    function buildInstancedMesh(satellites) {
+      if (satInstancedMesh) {
+        scene.remove(satInstancedMesh);
+        satInstancedMesh.dispose();
+        satInstancedMesh = null;
+      }
 
+      allSatelliteData = satellites;
       const filtered = satellites.filter(s => s.name.trim().toUpperCase() !== 'ISS (ZARYA)');
       satNames = [];
       satRecords = [];
       for (const s of filtered) {
         try {
-          const rec = satellite.twoline2satrec(s.line1, s.line2);
-          satRecords.push(rec);
+          satRecords.push(satellite.twoline2satrec(s.line1, s.line2));
           satNames.push(s.name.trim());
         } catch (e) {}
       }
@@ -344,46 +437,114 @@
         count
       );
       satInstancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-      for (let i = 0; i < count; i++) {
-        satInstancedMesh.setMatrixAt(i, hiddenMatrix);
-      }
+      for (let i = 0; i < count; i++) satInstancedMesh.setMatrixAt(i, hiddenMat);
       satInstancedMesh.instanceMatrix.needsUpdate = true;
       scene.add(satInstancedMesh);
-
       updateSatelliteInstances();
-      setInterval(updateSatelliteInstances, 3000);
     }
 
-    // --- Raycaster / tooltip ---
+    async function initAllSatellites() {
+      const res = await fetch('/api/satellites');
+      if (!res.ok) { console.error('Satellite fetch error:', res.status); return; }
+      buildInstancedMesh(await res.json());
+      if (!satIntervalId) satIntervalId = setInterval(updateSatelliteInstances, 3000);
+    }
+
+    let satIntervalId = null;
+
+    // ── Refresh button ─────────────────────────────────────────────────────
+    const refreshBtn = document.getElementById('refresh-btn');
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = '↺ Refreshing…';
+      lockedSatIdx = -1;
+      hlMesh.visible = false;
+      hlGlow.visible = false;
+      resetHUDToISS();
+      document.getElementById('search-status').textContent = '';
+      document.getElementById('search-input').value = '';
+      document.getElementById('clear-btn').style.display = 'none';
+      document.getElementById('search-btn').classList.remove('active');
+
+      try {
+        const res = await fetch('/api/satellites');
+        if (res.ok) buildInstancedMesh(await res.json());
+      } catch (e) { console.error('Refresh failed:', e); }
+
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '↺ Refresh Data';
+    });
+
+    // ── Search ─────────────────────────────────────────────────────────────
+    const searchInput  = document.getElementById('search-input');
+    const searchBtn    = document.getElementById('search-btn');
+    const clearBtn     = document.getElementById('clear-btn');
+    const searchStatus = document.getElementById('search-status');
+
+    function doSearch() {
+      const query = searchInput.value.trim().toUpperCase();
+      if (!query) { doClear(); return; }
+
+      const idx = satNames.findIndex(n => n.toUpperCase().includes(query));
+      if (idx === -1) {
+        searchStatus.textContent = 'No match found.';
+        return;
+      }
+
+      lockedSatIdx = idx;
+      const name = satNames[idx];
+      searchStatus.textContent = '✓ Locked: ' + name;
+      searchBtn.classList.add('active');
+      clearBtn.style.display = 'block';
+
+      hlMesh.visible = true;
+      hlGlow.visible = true;
+
+      const pos = satLastPositions[idx];
+      if (pos) {
+        hlMesh.position.set(pos.x, pos.z, -pos.y);
+        hlGlow.position.copy(hlMesh.position);
+        updateHUD(pos, name);
+      }
+    }
+
+    function doClear() {
+      lockedSatIdx = -1;
+      hlMesh.visible = false;
+      hlGlow.visible = false;
+      searchInput.value = '';
+      searchStatus.textContent = '';
+      clearBtn.style.display = 'none';
+      searchBtn.classList.remove('active');
+      resetHUDToISS();
+    }
+
+    searchBtn.addEventListener('click', doSearch);
+    clearBtn.addEventListener('click', doClear);
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    // ── Raycaster / tooltip ────────────────────────────────────────────────
     const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const tooltip    = document.getElementById('tooltip');
-    const ttName     = document.getElementById('tt-name');
-    const ttAlt      = document.getElementById('tt-alt');
+    const mouse     = new THREE.Vector2();
+    const tooltip   = document.getElementById('tooltip');
+    const ttName    = document.getElementById('tt-name');
+    const ttAlt     = document.getElementById('tt-alt');
 
     renderer.domElement.addEventListener('mousemove', e => {
       if (!satInstancedMesh) return;
-
       mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObject(satInstancedMesh);
-
       if (hits.length > 0) {
-        const id = hits[0].instanceId;
-        const name = satNames[id] || 'Unknown';
-        const pos  = satLastPositions[id];
-        const alt  = pos
-          ? (Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371).toFixed(1) + ' km'
-          : '—';
-
-        ttName.textContent = name;
+        const id  = hits[0].instanceId;
+        const pos = satLastPositions[id];
+        const alt = pos ? (Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371).toFixed(1) + ' km' : '—';
+        ttName.textContent = satNames[id] || 'Unknown';
         ttAlt.textContent  = 'ALT  ' + alt;
         tooltip.style.display = 'block';
-        tooltip.style.left = e.clientX + 'px';
-        tooltip.style.top  = e.clientY + 'px';
+        tooltip.style.left    = e.clientX + 'px';
+        tooltip.style.top     = e.clientY + 'px';
         document.body.style.cursor = 'crosshair';
       } else {
         tooltip.style.display = 'none';
@@ -396,53 +557,47 @@
       document.body.style.cursor = 'default';
     });
 
-    // --- Resize ---
+    // ── Resize ─────────────────────────────────────────────────────────────
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- Render loop ---
+    // ── Render loop ────────────────────────────────────────────────────────
     (function animate() {
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     })();
 
-    // --- ISS tracking ---
+    // ── ISS tracking ───────────────────────────────────────────────────────
     let issRec = null;
 
     function updateISSMarker() {
       if (!issRec) return;
-      const pv = satellite.propagate(issRec, new Date());
+      const pv  = satellite.propagate(issRec, new Date());
       const pos = pv.position;
       if (!pos) return;
-
-      const x = pos.x, y = pos.z, z = -pos.y;
-      issMesh.position.set(x, y, z);
-      issGlow.position.set(x, y, z);
-      addTrailPoint(x, y, z);
-      updateHUD(pos);
+      issMesh.position.set(pos.x, pos.z, -pos.y);
+      issGlow.position.set(pos.x, pos.z, -pos.y);
+      addTrailPoint(pos.x, pos.z, -pos.y);
+      if (lockedSatIdx === -1) updateHUD(pos);
     }
 
     async function initISS() {
-      const response = await fetch('/api/satellites');
-      if (!response.ok) { console.error('API error:', response.status); return; }
-      const satellites = await response.json();
-
-      const iss = satellites.find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
+      const res  = await fetch('/api/satellites');
+      if (!res.ok) { console.error('API error:', res.status); return; }
+      const data = await res.json();
+      const iss  = data.find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
       if (!iss) { console.error('ISS not found'); return; }
 
       issRec = satellite.twoline2satrec(iss.line1, iss.line2);
-
-      const now = Date.now();
-      const ORBIT_MS = 92 * 60 * 1000;
+      const now = Date.now(), ORBIT_MS = 92 * 60 * 1000;
       for (let t = now - ORBIT_MS; t <= now; t += 30000) {
         const pv = satellite.propagate(issRec, new Date(t));
         if (pv.position) addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
       }
-
       updateISSMarker();
       setInterval(updateISSMarker, 5000);
     }
