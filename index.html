@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ISS Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
+</head>
+<body>
+  <p>Check the browser console for ISS Cartesian coordinates.</p>
+
+  <script>
+    async function getISSPosition() {
+      const response = await fetch('/api/satellites');
+      if (!response.ok) {
+        console.error('API error:', response.status, await response.text());
+        return;
+      }
+      const satellites = await response.json();
+
+      const iss = satellites.find(sat => sat.name.trim().toUpperCase() === 'ISS (ZARYA)');
+
+      if (!iss) {
+        console.error('ISS not found in satellite data.');
+        return;
+      }
+
+      const satrec = satellite.twoline2satrec(iss.line1, iss.line2);
+      const now = new Date();
+      const positionAndVelocity = satellite.propagate(satrec, now);
+      const positionEci = positionAndVelocity.position;
+
+      if (!positionEci) {
+        console.error('Could not propagate ISS position.');
+        return;
+      }
+
+      console.log('ISS Cartesian Coordinates (km) at', now.toISOString());
+      console.log('  x:', positionEci.x);
+      console.log('  y:', positionEci.y);
+      console.log('  z:', positionEci.z);
+    }
+
+    getISSPosition();
+  </script>
+</body>
+</html>
