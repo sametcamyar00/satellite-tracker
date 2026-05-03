@@ -14,7 +14,7 @@
 </head>
 <body>
   <script>
-    // --- Three.js scene setup ---
+    // --- Scene ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
@@ -33,24 +33,33 @@
     controls.maxDistance = 200000;
 
     // --- Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(50000, 20000, 30000);
-    scene.add(directionalLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+    sun.position.set(50000, 20000, 30000);
+    scene.add(sun);
 
     // --- Earth ---
-    const earthGeometry = new THREE.SphereGeometry(6371, 64, 64);
     const textureLoader = new THREE.TextureLoader();
-    const earthTexture = textureLoader.load(
-      'https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg'
+    const earthMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(6371, 64, 64),
+      new THREE.MeshPhongMaterial({
+        map: textureLoader.load(
+          'https://unpkg.com/three@0.134.0/examples/textures/planets/earth_atmos_2048.jpg'
+        )
+      })
     );
-    const earthMaterial = new THREE.MeshPhongMaterial({ map: earthTexture });
-    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    scene.add(earth);
+    scene.add(earthMesh);
 
-    // --- Responsive resize ---
+    // --- ISS marker ---
+    const issMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(120, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x00ffff })
+    );
+    const issGlow = new THREE.PointLight(0x00ffff, 2, 3000);
+    scene.add(issMesh);
+    scene.add(issGlow);
+
+    // --- Resize ---
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -58,45 +67,41 @@
     });
 
     // --- Render loop ---
-    function animate() {
+    (function animate() {
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
-    }
-    animate();
+    })();
 
-    // --- ISS position (ECI coordinates) ---
-    async function getISSPosition() {
+    // --- ISS tracking ---
+    let issRec = null;
+
+    function updateISSMarker() {
+      if (!issRec) return;
+      const pv = satellite.propagate(issRec, new Date());
+      const pos = pv.position;
+      if (!pos) return;
+
+      issMesh.position.set(pos.x, pos.z, -pos.y);
+      issGlow.position.copy(issMesh.position);
+
+      console.log('ISS (km)  x:', pos.x.toFixed(1), ' y:', pos.y.toFixed(1), ' z:', pos.z.toFixed(1));
+    }
+
+    async function initISS() {
       const response = await fetch('/api/satellites');
-      if (!response.ok) {
-        console.error('API error:', response.status, await response.text());
-        return;
-      }
+      if (!response.ok) { console.error('API error:', response.status); return; }
       const satellites = await response.json();
 
-      const iss = satellites.find(sat => sat.name.trim().toUpperCase() === 'ISS (ZARYA)');
-      if (!iss) {
-        console.error('ISS not found in satellite data.');
-        return;
-      }
+      const iss = satellites.find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
+      if (!iss) { console.error('ISS not found'); return; }
 
-      const satrec = satellite.twoline2satrec(iss.line1, iss.line2);
-      const now = new Date();
-      const positionAndVelocity = satellite.propagate(satrec, now);
-      const positionEci = positionAndVelocity.position;
-
-      if (!positionEci) {
-        console.error('Could not propagate ISS position.');
-        return;
-      }
-
-      console.log('ISS Cartesian Coordinates (km) at', now.toISOString());
-      console.log('  x:', positionEci.x);
-      console.log('  y:', positionEci.y);
-      console.log('  z:', positionEci.z);
+      issRec = satellite.twoline2satrec(iss.line1, iss.line2);
+      updateISSMarker();
+      setInterval(updateISSMarker, 5000);
     }
 
-    getISSPosition();
+    initISS();
   </script>
 </body>
 </html>
