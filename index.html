@@ -7,12 +7,114 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
     canvas { display: block; }
+
+    #hud {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      min-width: 220px;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+      z-index: 10;
+    }
+
+    #hud .hud-title {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 10px;
+    }
+
+    #hud .hud-name {
+      font-size: 15px;
+      font-weight: bold;
+      color: #00ffff;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+
+    #hud .hud-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 7px;
+      gap: 16px;
+    }
+
+    #hud .hud-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      flex-shrink: 0;
+    }
+
+    #hud .hud-value {
+      font-size: 13px;
+      color: #e0f7ff;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #hud .hud-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin: 10px 0;
+    }
+
+    #hud .hud-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: #00ffff;
+      border-radius: 50%;
+      margin-right: 7px;
+      box-shadow: 0 0 6px #00ffff;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+
+  <div id="hud">
+    <div class="hud-title">Live Tracking</div>
+    <div class="hud-name"><span class="hud-dot"></span>ISS (ZARYA)</div>
+    <hr class="hud-divider">
+    <div class="hud-row">
+      <span class="hud-label">Altitude</span>
+      <span class="hud-value" id="hud-alt">— km</span>
+    </div>
+    <hr class="hud-divider">
+    <div class="hud-row">
+      <span class="hud-label">X</span>
+      <span class="hud-value" id="hud-x">—</span>
+    </div>
+    <div class="hud-row">
+      <span class="hud-label">Y</span>
+      <span class="hud-value" id="hud-y">—</span>
+    </div>
+    <div class="hud-row">
+      <span class="hud-label">Z</span>
+      <span class="hud-value" id="hud-z">—</span>
+    </div>
+  </div>
+
   <script>
     // --- Scene ---
     const scene = new THREE.Scene();
@@ -95,6 +197,20 @@
       trailGeometry.attributes.position.needsUpdate = true;
     }
 
+    // --- HUD elements ---
+    const hudAlt = document.getElementById('hud-alt');
+    const hudX   = document.getElementById('hud-x');
+    const hudY   = document.getElementById('hud-y');
+    const hudZ   = document.getElementById('hud-z');
+
+    function updateHUD(pos) {
+      const altitude = Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371;
+      hudAlt.textContent = altitude.toFixed(1) + ' km';
+      hudX.textContent   = pos.x.toFixed(1) + ' km';
+      hudY.textContent   = pos.y.toFixed(1) + ' km';
+      hudZ.textContent   = pos.z.toFixed(1) + ' km';
+    }
+
     // --- Resize ---
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -122,8 +238,7 @@
       issMesh.position.set(x, y, z);
       issGlow.position.set(x, y, z);
       addTrailPoint(x, y, z);
-
-      console.log('ISS (km)  x:', pos.x.toFixed(1), ' y:', pos.y.toFixed(1), ' z:', pos.z.toFixed(1));
+      updateHUD(pos);
     }
 
     async function initISS() {
