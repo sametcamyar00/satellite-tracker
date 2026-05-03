@@ -77,12 +77,46 @@
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.3; }
     }
+
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      display: none;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 204, 0, 0.4);
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #fff;
+      z-index: 20;
+      white-space: nowrap;
+      transform: translate(14px, -50%);
+    }
+    #tooltip .tt-name {
+      font-weight: bold;
+      color: #ffcc00;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    #tooltip .tt-alt {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+
+  <div id="tooltip">
+    <div class="tt-name" id="tt-name"></div>
+    <div class="tt-alt" id="tt-alt"></div>
+  </div>
 
   <div id="hud">
     <div class="hud-title">Live Tracking</div>
@@ -229,6 +263,8 @@
     // --- All-satellite InstancedMesh ---
     let satInstancedMesh = null;
     let satRecords = [];
+    let satNames = [];
+    let satLastPositions = [];
     const dummy = new THREE.Object3D();
     const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
 
@@ -240,10 +276,12 @@
         const pos = pv.position;
         if (!pos || isNaN(pos.x)) {
           satInstancedMesh.setMatrixAt(i, hiddenMatrix);
+          satLastPositions[i] = null;
         } else {
           dummy.position.set(pos.x, pos.z, -pos.y);
           dummy.updateMatrix();
           satInstancedMesh.setMatrixAt(i, dummy.matrix);
+          satLastPositions[i] = pos;
         }
       }
       satInstancedMesh.instanceMatrix.needsUpdate = true;
@@ -254,20 +292,24 @@
       if (!response.ok) { console.error('Satellite fetch error:', response.status); return; }
       const satellites = await response.json();
 
-      satRecords = satellites
-        .filter(s => s.name.trim().toUpperCase() !== 'ISS (ZARYA)')
-        .map(s => {
-          try { return satellite.twoline2satrec(s.line1, s.line2); }
-          catch (e) { return null; }
-        })
-        .filter(Boolean);
+      const filtered = satellites.filter(s => s.name.trim().toUpperCase() !== 'ISS (ZARYA)');
+      satNames = [];
+      satRecords = [];
+      for (const s of filtered) {
+        try {
+          const rec = satellite.twoline2satrec(s.line1, s.line2);
+          satRecords.push(rec);
+          satNames.push(s.name.trim());
+        } catch (e) {}
+      }
+      satLastPositions = new Array(satRecords.length).fill(null);
 
       const count = satRecords.length;
       console.log(`Rendering ${count} satellites via InstancedMesh`);
 
       satInstancedMesh = new THREE.InstancedMesh(
-        new THREE.BoxGeometry(40, 40, 40),
-        new THREE.MeshBasicMaterial({ color: 0xaaaaaa }),
+        new THREE.BoxGeometry(80, 80, 80),
+        new THREE.MeshBasicMaterial({ color: 0xffcc00 }),
         count
       );
       satInstancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -281,6 +323,47 @@
       updateSatelliteInstances();
       setInterval(updateSatelliteInstances, 3000);
     }
+
+    // --- Raycaster / tooltip ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const tooltip    = document.getElementById('tooltip');
+    const ttName     = document.getElementById('tt-name');
+    const ttAlt      = document.getElementById('tt-alt');
+
+    renderer.domElement.addEventListener('mousemove', e => {
+      if (!satInstancedMesh) return;
+
+      mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObject(satInstancedMesh);
+
+      if (hits.length > 0) {
+        const id = hits[0].instanceId;
+        const name = satNames[id] || 'Unknown';
+        const pos  = satLastPositions[id];
+        const alt  = pos
+          ? (Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371).toFixed(1) + ' km'
+          : '—';
+
+        ttName.textContent = name;
+        ttAlt.textContent  = 'ALT  ' + alt;
+        tooltip.style.display = 'block';
+        tooltip.style.left = e.clientX + 'px';
+        tooltip.style.top  = e.clientY + 'px';
+        document.body.style.cursor = 'crosshair';
+      } else {
+        tooltip.style.display = 'none';
+        document.body.style.cursor = 'default';
+      }
+    });
+
+    renderer.domElement.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+      document.body.style.cursor = 'default';
+    });
 
     // --- Resize ---
     window.addEventListener('resize', () => {
