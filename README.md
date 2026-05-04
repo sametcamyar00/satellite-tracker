@@ -2,8 +2,6 @@
 
 > A highly optimized, real-time 3D web application that visualizes over 15,000 active satellites and space debris orbiting Earth. 
 
-![Project Preview](https://via.placeholder.com/1000x500.png?text=Live+3D+Satellite+Tracker+Preview) <!-- Buraya kendi projenin ekran görüntüsünün linkini eklemeyi unutma! -->
-
 This project fetches real-time Two-Line Element (TLE) and Satellite Catalog (SATCAT) data to calculate and render the exact positions of thousands of objects in Earth's orbit using the SGP4 mathematical model. It is designed with a focus on high performance and an intuitive, modern Glassmorphism UI.
 
 ## ✨ Key Features
