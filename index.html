@@ -834,13 +834,11 @@
     const clearBtn     = document.getElementById('clear-btn');
     const searchStatus = document.getElementById('search-status');
 
-    function doSearch() {
-      const q = searchInput.value.trim().toUpperCase();
-      if (!q) { doClear(); return; }
-      const idx = satNames.findIndex(n => n.toUpperCase().includes(q));
-      if (idx === -1) { searchStatus.textContent = 'No match found.'; return; }
+    // Shared lock logic — called by search AND canvas click
+    function lockToSatellite(idx) {
       lockedSatIdx = idx;
       const name = satNames[idx];
+      searchInput.value = name;
       searchStatus.textContent = '✓ Locked: ' + name;
       searchBtn.classList.add('active');
       clearBtn.style.display = 'block';
@@ -851,6 +849,14 @@
         hlGlow.position.copy(hlMesh.position);
         updateHUD(pos, name);
       }
+    }
+
+    function doSearch() {
+      const q = searchInput.value.trim().toUpperCase();
+      if (!q) { doClear(); return; }
+      const idx = satNames.findIndex(n => n.toUpperCase().includes(q));
+      if (idx === -1) { searchStatus.textContent = 'No match found.'; return; }
+      lockToSatellite(idx);
     }
 
     function doClear() {
@@ -902,6 +908,21 @@
     }
     renderer.domElement.addEventListener('mousemove',  onMouseMove);
     renderer.domElement.addEventListener('mouseleave', onMouseLeave);
+
+    // ── Click-to-lock ──────────────────────────────────────────────────────
+    let _pointerMoved = false;
+    renderer.domElement.addEventListener('pointerdown', () => { _pointerMoved = false; });
+    renderer.domElement.addEventListener('pointermove', () => { _pointerMoved = true;  });
+    renderer.domElement.addEventListener('pointerup', e => {
+      if (_pointerMoved || !satMesh) return;   // ignore drag-to-rotate
+      mouse.x =  (e.clientX / innerWidth)  * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObject(satMesh);
+      if (hits.length > 0) {
+        lockToSatellite(hits[0].instanceId);
+      }
+    });
 
     // ── Resize ─────────────────────────────────────────────────────────────
     window.addEventListener('resize', () => {
