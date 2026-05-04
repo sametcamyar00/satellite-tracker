@@ -285,6 +285,67 @@
       transition: background 0.15s;
     }
     #clear-all-btn:hover { background: rgba(255,80,80,0.22); border-color: rgba(255,80,80,0.55); }
+
+    /* ── Satellite Detail Panel ──────────────────────────────────────────── */
+    #sat-detail {
+      display: none;
+      position: fixed; top: 338px; left: 20px;
+      width: 250px; z-index: 10; pointer-events: none;
+      background: rgba(0,0,0,0.48);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,255,255,0.22);
+      border-radius: 12px; padding: 14px 16px;
+      font-family: 'Courier New', monospace; color: #fff;
+    }
+    .sd-title {
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); margin-bottom: 11px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sd-title::before {
+      content: ''; display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: rgba(0,255,255,0.7); box-shadow: 0 0 5px #00ffff;
+    }
+    #wiki-section { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 11px; }
+    #wiki-thumb {
+      width: 62px; height: 62px; border-radius: 7px; object-fit: cover;
+      flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);
+    }
+    #wiki-icon {
+      width: 62px; height: 62px; border-radius: 7px; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    #wiki-text { flex: 1; min-width: 0; }
+    #wiki-name {
+      font-size: 11px; font-weight: bold; color: #00ffff;
+      margin-bottom: 5px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #wiki-extract {
+      font-size: 9.5px; color: rgba(255,255,255,0.52); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .sd-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 10px 0; }
+    .sd-subtitle {
+      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); margin-bottom: 7px;
+    }
+    #orb-grid {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 6px 10px; align-items: baseline;
+    }
+    .orb-label {
+      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+    }
+    .orb-value {
+      font-size: 12px; color: #e0f7ff; text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
@@ -323,6 +384,27 @@
     <div id="search-status"></div>
     <div id="refresh-row">
       <button id="refresh-btn">↺ Refresh Data</button>
+    </div>
+  </div>
+
+  <!-- Satellite Detail Panel -->
+  <div id="sat-detail">
+    <div class="sd-title">Satellite Details</div>
+    <div id="wiki-section">
+      <div id="wiki-icon">🛰</div>
+      <div id="wiki-text">
+        <div id="wiki-name"></div>
+        <div id="wiki-extract"></div>
+      </div>
+    </div>
+    <hr class="sd-divider">
+    <div class="sd-subtitle">Orbital Parameters</div>
+    <div id="orb-grid">
+      <span class="orb-label">Inclination</span> <span class="orb-value" id="orb-inc">—</span>
+      <span class="orb-label">Eccentricity</span><span class="orb-value" id="orb-ecc">—</span>
+      <span class="orb-label">Period</span>       <span class="orb-value" id="orb-per">—</span>
+      <span class="orb-label">Apogee</span>       <span class="orb-value" id="orb-apo">—</span>
+      <span class="orb-label">Perigee</span>      <span class="orb-value" id="orb-peri">—</span>
     </div>
   </div>
 
@@ -834,6 +916,89 @@
     const clearBtn     = document.getElementById('clear-btn');
     const searchStatus = document.getElementById('search-status');
 
+    // ── Satellite Detail Panel ─────────────────────────────────────────────
+    const satDetailEl = document.getElementById('sat-detail');
+
+    function cleanWikiName(name) {
+      return name
+        .replace(/\s*\(.*?\)/g, '')   // strip (ZARYA), (DEBRIS) etc.
+        .replace(/\s*\[.*?\]/g, '')   // strip [...]
+        .replace(/[-_]\d+$/g, '')     // strip trailing -1, _2 etc.
+        .trim();
+    }
+
+    function computeOrbitalParams(satrec) {
+      const mu = 398600.4418;               // km³/s²
+      const n  = satrec.no / 60;            // rad/min → rad/s
+      const a  = Math.cbrt(mu / (n * n));   // semi-major axis, km
+      const e  = satrec.ecco;
+      return {
+        inc:    (satrec.inclo * 180 / Math.PI).toFixed(2) + '°',
+        ecc:    e.toFixed(5),
+        period: (2 * Math.PI / n / 60).toFixed(1) + ' min',
+        apogee: Math.round(a * (1 + e) - 6371) + ' km',
+        perigee:Math.round(a * (1 - e) - 6371) + ' km',
+      };
+    }
+
+    async function showSatDetail(idx) {
+      const name   = satNames[idx];
+      const satrec = satRecords[idx];
+
+      // Orbital params — instant, no async needed
+      const orb = computeOrbitalParams(satrec);
+      document.getElementById('orb-inc').textContent  = orb.inc;
+      document.getElementById('orb-ecc').textContent  = orb.ecc;
+      document.getElementById('orb-per').textContent  = orb.period;
+      document.getElementById('orb-apo').textContent  = orb.apogee;
+      document.getElementById('orb-peri').textContent = orb.perigee;
+
+      // Reset wiki section to icon + loading state, then show panel
+      const wikiSection = document.getElementById('wiki-section');
+      const existingThumb = document.getElementById('wiki-thumb');
+      if (existingThumb) existingThumb.remove();
+      let iconEl = document.getElementById('wiki-icon');
+      if (!iconEl) {
+        iconEl = document.createElement('div');
+        iconEl.id = 'wiki-icon';
+        iconEl.textContent = '🛰';
+        wikiSection.prepend(iconEl);
+      }
+      iconEl.style.display = 'flex';
+      document.getElementById('wiki-name').textContent    = name;
+      document.getElementById('wiki-extract').textContent = 'Loading…';
+      satDetailEl.style.display = 'block';
+
+      // Wikipedia fetch (async, non-blocking)
+      const wikiName = cleanWikiName(name);
+      try {
+        const res  = await fetch(
+          'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(wikiName)
+        );
+        if (!res.ok) throw new Error('not found');
+        const data = await res.json();
+
+        document.getElementById('wiki-name').textContent    = data.title || name;
+        document.getElementById('wiki-extract').textContent = data.extract || 'No description available.';
+
+        if (data.thumbnail && data.thumbnail.source) {
+          const img = document.createElement('img');
+          img.id  = 'wiki-thumb';
+          img.src = data.thumbnail.source;
+          img.alt = '';
+          const icon = document.getElementById('wiki-icon');
+          if (icon) icon.replaceWith(img);
+        }
+      } catch (_) {
+        document.getElementById('wiki-name').textContent    = name;
+        document.getElementById('wiki-extract').textContent = 'No Wikipedia data available.';
+      }
+    }
+
+    function hideSatDetail() {
+      satDetailEl.style.display = 'none';
+    }
+
     // Shared lock logic — called by search AND canvas click
     function lockToSatellite(idx) {
       lockedSatIdx = idx;
@@ -849,6 +1014,7 @@
         hlGlow.position.copy(hlMesh.position);
         updateHUD(pos, name);
       }
+      showSatDetail(idx);
     }
 
     function doSearch() {
@@ -867,6 +1033,7 @@
       clearBtn.style.display = 'none';
       searchBtn.classList.remove('active');
       resetHUDToISS();
+      hideSatDetail();
     }
 
     searchBtn.addEventListener('click', doSearch);
