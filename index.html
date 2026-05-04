@@ -361,14 +361,12 @@
       for (let i = 0; i < satRecords.length; i++) {
         const pos = satLastPos[i];
         if (!pos) continue;
-        if (starlinkMode && !satIsStarlink[i]) {
-          satMesh.setMatrixAt(i, hiddenMat);
-        } else {
-          dummy.position.set(pos.x, pos.z, -pos.y);
-          dummy.updateMatrix();
-          satMesh.setMatrixAt(i, dummy.matrix);
-        }
-        _c.set(satIsStarlink[i] ? COLOR_STARLINK : (starlinkMode ? COLOR_DIM : COLOR_DEFAULT));
+        const hide = starlinkMode && !satIsStarlink[i];
+        dummy.position.set(pos.x, pos.z, -pos.y);
+        dummy.scale.set(hide ? 0 : 1, hide ? 0 : 1, hide ? 0 : 1);
+        dummy.updateMatrix();
+        satMesh.setMatrixAt(i, dummy.matrix);
+        _c.set(satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT);
         satMesh.setColorAt(i, _c);
       }
       satMesh.instanceMatrix.needsUpdate = true;
@@ -382,20 +380,20 @@
         const pv  = satellite.propagate(satRecords[i], now);
         const pos = pv.position;
         if (!pos || pos.x !== pos.x) {   // NaN check via self-inequality
-          satMesh.setMatrixAt(i, hiddenMat);
+          dummy.position.set(0, 0, 0);
+          dummy.scale.set(0, 0, 0);
+          dummy.updateMatrix();
+          satMesh.setMatrixAt(i, dummy.matrix);
           satLastPos[i] = null;
           continue;
         }
         satLastPos[i] = pos;
         const hide = starlinkMode && !satIsStarlink[i];
-        if (hide) {
-          satMesh.setMatrixAt(i, hiddenMat);
-        } else {
-          dummy.position.set(pos.x, pos.z, -pos.y);
-          dummy.updateMatrix();
-          satMesh.setMatrixAt(i, dummy.matrix);
-        }
-        _c.set(satIsStarlink[i] ? COLOR_STARLINK : (starlinkMode ? COLOR_DIM : COLOR_DEFAULT));
+        dummy.position.set(pos.x, pos.z, -pos.y);
+        dummy.scale.set(hide ? 0 : 1, hide ? 0 : 1, hide ? 0 : 1);
+        dummy.updateMatrix();
+        satMesh.setMatrixAt(i, dummy.matrix);
+        _c.set(satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT);
         satMesh.setColorAt(i, _c);
       }
       satMesh.instanceMatrix.needsUpdate = true;
@@ -447,15 +445,19 @@
 
       // ── create mesh ───────────────────────────────────────────────────
       satGeo  = new THREE.BoxGeometry(80, 80, 80);
-      satMat  = new THREE.MeshBasicMaterial({ vertexColors: true });
+      satMat  = new THREE.MeshBasicMaterial({ color: 0xffffff });
       satMesh = new THREE.InstancedMesh(satGeo, satMat, count);
       satMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
       // initialise all instances hidden + coloured
+      dummy.position.set(0, 0, 0);
+      dummy.scale.set(0, 0, 0);
+      dummy.updateMatrix();
       for (let i = 0; i < count; i++) {
-        satMesh.setMatrixAt(i, hiddenMat);
+        satMesh.setMatrixAt(i, dummy.matrix);
         satMesh.setColorAt(i, COLOR_DEFAULT);
       }
+      dummy.scale.set(1, 1, 1); // restore scale for subsequent use
       satMesh.instanceMatrix.needsUpdate = true;
       satMesh.instanceColor.needsUpdate  = true;
       scene.add(satMesh);
