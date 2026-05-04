@@ -10,13 +10,12 @@
 
     #hud {
       position: fixed;
-      top: 20px;
-      left: 20px;
+      top: 20px; left: 20px;
       pointer-events: none;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0,0,0,0.45);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 255, 255, 0.25);
+      border: 1px solid rgba(0,255,255,0.25);
       border-radius: 12px;
       padding: 16px 20px;
       width: 250px;
@@ -24,177 +23,146 @@
       color: #fff;
       z-index: 10;
     }
-    #hud .hud-title {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
-      margin-bottom: 10px;
+    .hud-title {
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin-bottom: 10px;
     }
-    #hud .hud-name {
-      font-size: 13px;
-      font-weight: bold;
-      color: #00ffff;
-      letter-spacing: 0.04em;
-      margin-bottom: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    #hud-name {
+      font-size: 13px; font-weight: bold; color: #00ffff;
+      letter-spacing: 0.04em; margin-bottom: 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    #hud .hud-name.locked { color: #ff6bff; }
-    #hud .hud-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 7px;
-      gap: 16px;
+    #hud-name.locked { color: #ff6bff; }
+    .hud-row {
+      display: flex; justify-content: space-between;
+      align-items: baseline; margin-bottom: 7px; gap: 16px;
     }
-    #hud .hud-label {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
+    .hud-label {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); flex-shrink: 0;
+    }
+    .hud-value {
+      font-size: 13px; color: #e0f7ff;
+      text-align: right; font-variant-numeric: tabular-nums;
+    }
+    .hud-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0; }
+    .hud-dot {
+      display: inline-block; width: 7px; height: 7px;
+      background: #00ffff; border-radius: 50%; margin-right: 7px;
+      box-shadow: 0 0 6px #00ffff; animation: pulse 2s ease-in-out infinite;
+    }
+    .hud-dot.locked { background: #ff6bff; box-shadow: 0 0 6px #ff6bff; }
+    .hud-badge-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hud-badge-label {
+      font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+    }
+    .hud-badge {
+      background: rgba(255,204,0,0.15); border: 1px solid rgba(255,204,0,0.45);
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 12px; font-weight: bold; color: #ffcc00;
+      letter-spacing: 0.06em; font-variant-numeric: tabular-nums;
+    }
+
+    /* ── interactive rows ─────────────────────────────────── */
+    #starlink-row, #search-row, #refresh-row { pointer-events: auto; }
+
+    /* Starlink toggle */
+    #starlink-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    #starlink-label {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    #starlink-toggle {
+      position: relative; width: 40px; height: 20px; cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; transition: background 0.25s, border-color 0.25s;
       flex-shrink: 0;
     }
-    #hud .hud-value {
-      font-size: 13px;
-      color: #e0f7ff;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-    #hud .hud-divider {
-      border: none;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      margin: 10px 0;
-    }
-    #hud .hud-dot {
-      display: inline-block;
-      width: 7px; height: 7px;
-      background: #00ffff;
+    #starlink-toggle::after {
+      content: ''; position: absolute;
+      top: 3px; left: 3px;
+      width: 12px; height: 12px;
+      background: rgba(255,255,255,0.5);
       border-radius: 50%;
-      margin-right: 7px;
-      box-shadow: 0 0 6px #00ffff;
-      animation: pulse 2s ease-in-out infinite;
+      transition: transform 0.25s, background 0.25s;
     }
-    #hud .hud-dot.locked { background: #ff6bff; box-shadow: 0 0 6px #ff6bff; }
-    #hud .hud-badge-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+    #starlink-toggle.on {
+      background: rgba(116,185,255,0.3);
+      border-color: rgba(116,185,255,0.7);
     }
-    #hud .hud-badge-label {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
+    #starlink-toggle.on::after {
+      transform: translateX(20px);
+      background: #74b9ff;
+      box-shadow: 0 0 6px #74b9ff;
     }
-    #hud .hud-badge {
-      background: rgba(255,204,0,0.15);
-      border: 1px solid rgba(255,204,0,0.45);
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #ffcc00;
-      letter-spacing: 0.06em;
-      font-variant-numeric: tabular-nums;
+    #starlink-count {
+      font-size: 10px; color: rgba(116,185,255,0.7);
+      margin-left: 8px; font-variant-numeric: tabular-nums;
     }
 
-    /* --- interactive controls (pointer-events re-enabled) --- */
-    .hud-interactive { pointer-events: auto; }
-
+    /* search */
     #search-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 12px;
-      padding-top: 10px;
+      display: flex; gap: 6px;
+      margin-top: 10px; padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.1);
-      pointer-events: auto;
     }
     #search-input {
-      flex: 1;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
-      padding: 5px 8px;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      outline: none;
+      flex: 1; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+      padding: 5px 8px; color: #fff;
+      font-family: 'Courier New', monospace; font-size: 11px; outline: none;
     }
     #search-input::placeholder { color: rgba(255,255,255,0.3); }
     #search-input:focus { border-color: rgba(255,100,255,0.6); }
     .hud-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 6px;
-      padding: 5px 9px;
-      color: rgba(255,255,255,0.75);
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      cursor: pointer;
-      letter-spacing: 0.05em;
-      transition: background 0.15s, border-color 0.15s;
-      white-space: nowrap;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 6px; padding: 5px 9px; color: rgba(255,255,255,0.75);
+      font-family: 'Courier New', monospace; font-size: 10px;
+      cursor: pointer; letter-spacing: 0.05em;
+      transition: background 0.15s, border-color 0.15s; white-space: nowrap;
     }
     .hud-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
     .hud-btn.active { background: rgba(255,100,255,0.2); border-color: rgba(255,100,255,0.6); color: #ff6bff; }
     #search-status {
-      font-size: 10px;
-      color: rgba(255,100,255,0.8);
-      margin-top: 5px;
-      min-height: 14px;
-      pointer-events: none;
+      font-size: 10px; color: rgba(255,100,255,0.8);
+      margin-top: 5px; min-height: 14px; pointer-events: none;
     }
-    #refresh-row {
-      margin-top: 8px;
-      pointer-events: auto;
-    }
+    #refresh-row { margin-top: 8px; }
     #refresh-btn {
-      width: 100%;
-      text-align: center;
-      background: rgba(0,255,255,0.06);
-      border: 1px solid rgba(0,255,255,0.2);
-      border-radius: 6px;
-      padding: 6px;
-      color: rgba(0,255,255,0.7);
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      cursor: pointer;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      width: 100%; text-align: center;
+      background: rgba(0,255,255,0.06); border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 6px; padding: 6px; color: rgba(0,255,255,0.7);
+      font-family: 'Courier New', monospace; font-size: 10px;
+      cursor: pointer; letter-spacing: 0.1em; text-transform: uppercase;
       transition: background 0.15s;
     }
     #refresh-btn:hover { background: rgba(0,255,255,0.14); }
     #refresh-btn:disabled { opacity: 0.4; cursor: default; }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     #tooltip {
-      position: fixed;
-      pointer-events: none;
-      display: none;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(10px);
+      position: fixed; pointer-events: none; display: none;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255,204,0,0.4);
-      border-radius: 8px;
-      padding: 9px 13px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #fff;
-      z-index: 20;
-      white-space: nowrap;
-      transform: translate(14px, -50%);
+      border-radius: 8px; padding: 9px 13px;
+      font-family: 'Courier New', monospace; font-size: 12px;
+      color: #fff; z-index: 20; white-space: nowrap;
+      transform: translate(14px,-50%);
     }
-    #tooltip .tt-name { font-weight: bold; color: #ffcc00; letter-spacing: 0.05em; margin-bottom: 4px; }
-    #tooltip .tt-alt  { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; }
+    #tooltip .tt-name { font-weight:bold; color:#ffcc00; letter-spacing:0.05em; margin-bottom:4px; }
+    #tooltip .tt-alt  { font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.08em; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
@@ -209,12 +177,9 @@
 
   <div id="hud">
     <div class="hud-title">Live Tracking</div>
-    <div class="hud-name" id="hud-name"><span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)</div>
+    <div id="hud-name"><span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)</div>
     <hr class="hud-divider">
-    <div class="hud-row">
-      <span class="hud-label">Altitude</span>
-      <span class="hud-value" id="hud-alt">— km</span>
-    </div>
+    <div class="hud-row"><span class="hud-label">Altitude</span><span class="hud-value" id="hud-alt">— km</span></div>
     <hr class="hud-divider">
     <div class="hud-row"><span class="hud-label">X</span><span class="hud-value" id="hud-x">—</span></div>
     <div class="hud-row"><span class="hud-label">Y</span><span class="hud-value" id="hud-y">—</span></div>
@@ -222,6 +187,12 @@
     <div class="hud-badge-row">
       <span class="hud-badge-label">Tracking</span>
       <span class="hud-badge" id="hud-count">—</span>
+    </div>
+
+    <!-- Starlink filter -->
+    <div id="starlink-row">
+      <span id="starlink-label">Starlink only<span id="starlink-count"></span></span>
+      <div id="starlink-toggle"></div>
     </div>
 
     <!-- Search -->
@@ -239,23 +210,29 @@
   </div>
 
   <script>
+    // ── Constants ──────────────────────────────────────────────────────────
+    const COLOR_DEFAULT  = new THREE.Color(0xffcc00);
+    const COLOR_STARLINK = new THREE.Color(0x74b9ff);
+    const COLOR_DIM      = new THREE.Color(0x222222);
+    const TRAIL_LENGTH   = 200;
+
     // ── Scene ──────────────────────────────────────────────────────────────
-    const scene = new THREE.Scene();
+    const scene    = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 100, 1000000);
+    const camera   = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 100, 1e6);
     camera.position.set(0, 0, 20000);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(devicePixelRatio);
     document.body.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping  = true;
-    controls.dampingFactor  = 0.05;
-    controls.minDistance    = 7000;
-    controls.maxDistance    = 200000;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance   = 7000;
+    controls.maxDistance   = 200000;
 
     // ── Lighting ───────────────────────────────────────────────────────────
     scene.add(new THREE.AmbientLight(0xffffff, 1.5));
@@ -264,19 +241,19 @@
     scene.add(sun);
 
     // ── Stars ──────────────────────────────────────────────────────────────
-    (function buildStars() {
-      const COUNT = 6000, pos = new Float32Array(COUNT * 3);
-      for (let i = 0; i < COUNT; i++) {
-        const r = 400000 + Math.random() * 200000;
-        const theta = Math.random() * 2 * Math.PI;
-        const phi   = Math.acos(2 * Math.random() - 1);
-        pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-        pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-        pos[i*3+2] = r * Math.cos(phi);
+    (function () {
+      const N = 6000, buf = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        const r = 4e5 + Math.random() * 2e5;
+        const t = Math.random() * 2 * Math.PI;
+        const p = Math.acos(2 * Math.random() - 1);
+        buf[i*3]   = r * Math.sin(p) * Math.cos(t);
+        buf[i*3+1] = r * Math.sin(p) * Math.sin(t);
+        buf[i*3+2] = r * Math.cos(p);
       }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(buf, 3));
+      scene.add(new THREE.Points(g, new THREE.PointsMaterial({
         color: 0xffffff, size: 300, sizeAttenuation: true, transparent: true, opacity: 0.85
       })));
     })();
@@ -301,32 +278,25 @@
     scene.add(issMesh);
     scene.add(issGlow);
 
-    // ── Orbital trail ──────────────────────────────────────────────────────
-    const TRAIL_LENGTH = 200;
-    const trailPos = new Float32Array(TRAIL_LENGTH * 3);
+    // ── Orbital trail (zero-allocation after init) ─────────────────────────
+    const trailBuf = new Float32Array(TRAIL_LENGTH * 3);
+    const trailAttr = new THREE.BufferAttribute(trailBuf, 3);
+    trailAttr.setUsage(THREE.DynamicDrawUsage);
     const trailGeo = new THREE.BufferGeometry();
-    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+    trailGeo.setAttribute('position', trailAttr);
     trailGeo.setDrawRange(0, 0);
     scene.add(new THREE.Line(trailGeo,
       new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true })));
-    let trailCount = 0, trailHead = 0;
 
+    let trailHead = 0, trailCount = 0;
     function addTrailPoint(x, y, z) {
-      trailPos[trailHead*3]   = x;
-      trailPos[trailHead*3+1] = y;
-      trailPos[trailHead*3+2] = z;
+      trailBuf[trailHead*3]   = x;
+      trailBuf[trailHead*3+1] = y;
+      trailBuf[trailHead*3+2] = z;
       trailHead = (trailHead + 1) % TRAIL_LENGTH;
       trailCount = Math.min(trailCount + 1, TRAIL_LENGTH);
-      const ordered = new Float32Array(trailCount * 3);
-      for (let j = 0; j < trailCount; j++) {
-        const src = ((trailHead - trailCount + j + TRAIL_LENGTH) % TRAIL_LENGTH) * 3;
-        ordered[j*3]   = trailPos[src];
-        ordered[j*3+1] = trailPos[src+1];
-        ordered[j*3+2] = trailPos[src+2];
-      }
-      trailGeo.setAttribute('position', new THREE.BufferAttribute(ordered, 3));
+      trailAttr.needsUpdate = true;
       trailGeo.setDrawRange(0, trailCount);
-      trailGeo.attributes.position.needsUpdate = true;
     }
 
     // ── Search highlight marker ────────────────────────────────────────────
@@ -335,32 +305,31 @@
       new THREE.MeshBasicMaterial({ color: 0xff6bff })
     );
     const hlGlow = new THREE.PointLight(0xff6bff, 3, 4000);
-    hlMesh.visible = false;
-    hlGlow.visible = false;
+    hlMesh.visible = hlGlow.visible = false;
     scene.add(hlMesh);
     scene.add(hlGlow);
 
     // ── HUD refs ───────────────────────────────────────────────────────────
-    const hudNameEl = document.getElementById('hud-name');
-    const hudDotEl  = document.getElementById('hud-dot');
-    const hudAlt    = document.getElementById('hud-alt');
-    const hudX      = document.getElementById('hud-x');
-    const hudY      = document.getElementById('hud-y');
-    const hudZ      = document.getElementById('hud-z');
+    const hudNameEl    = document.getElementById('hud-name');
+    const hudAlt       = document.getElementById('hud-alt');
+    const hudX         = document.getElementById('hud-x');
+    const hudY         = document.getElementById('hud-y');
+    const hudZ         = document.getElementById('hud-z');
+    const hudCountEl   = document.getElementById('hud-count');
+    const starlinkCountEl = document.getElementById('starlink-count');
 
-    let lockedSatIdx = -1;   // -1 = show ISS, ≥0 = locked to this satellite index
+    let lockedSatIdx = -1;
 
     function updateHUD(pos, name) {
-      const altitude = Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371;
-      hudAlt.textContent = altitude.toFixed(1) + ' km';
+      const alt = (Math.sqrt(pos.x*pos.x + pos.y*pos.y + pos.z*pos.z) - 6371).toFixed(1);
+      hudAlt.textContent = alt + ' km';
       hudX.textContent   = pos.x.toFixed(1) + ' km';
       hudY.textContent   = pos.y.toFixed(1) + ' km';
       hudZ.textContent   = pos.z.toFixed(1) + ' km';
-      if (name) {
+      if (name !== undefined) {
         hudNameEl.innerHTML = '';
         const dot = document.createElement('span');
         dot.className = 'hud-dot locked';
-        dot.id = 'hud-dot';
         hudNameEl.appendChild(dot);
         hudNameEl.appendChild(document.createTextNode(name));
         hudNameEl.classList.add('locked');
@@ -368,38 +337,72 @@
     }
 
     function resetHUDToISS() {
-      hudNameEl.innerHTML = '<span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)';
+      hudNameEl.innerHTML = '<span class="hud-dot"></span>ISS (ZARYA)';
       hudNameEl.classList.remove('locked');
     }
 
-    // ── All-satellite InstancedMesh ────────────────────────────────────────
-    let satInstancedMesh = null;
-    let satRecords = [], satNames = [], satLastPositions = [];
-    let allSatelliteData = [];
-    const dummy       = new THREE.Object3D();
-    const hiddenMat   = new THREE.Matrix4().makeScale(0, 0, 0);
+    // ── InstancedMesh state ────────────────────────────────────────────────
+    let satMesh         = null;     // THREE.InstancedMesh
+    let satGeo          = null;     // BoxGeometry — owned, must be disposed
+    let satMat          = null;     // MeshBasicMaterial — owned, must be disposed
+    let satRecords      = [];       // satrec[]
+    let satNames        = [];       // string[]
+    let satIsStarlink   = [];       // bool[]
+    let satLastPos      = [];       // {x,y,z}|null[]
+    let starlinkCount   = 0;
+    let starlinkMode    = false;
+
+    const dummy      = new THREE.Object3D();       // reused — no allocation per frame
+    const hiddenMat  = new THREE.Matrix4().makeScale(0, 0, 0);  // reused
+    const _c         = new THREE.Color();          // scratch color — reused
+
+    function applyStarlinkFilter() {
+      if (!satMesh) return;
+      for (let i = 0; i < satRecords.length; i++) {
+        const pos = satLastPos[i];
+        if (!pos) continue;
+        if (starlinkMode && !satIsStarlink[i]) {
+          satMesh.setMatrixAt(i, hiddenMat);
+        } else {
+          dummy.position.set(pos.x, pos.z, -pos.y);
+          dummy.updateMatrix();
+          satMesh.setMatrixAt(i, dummy.matrix);
+        }
+        _c.set(satIsStarlink[i] ? COLOR_STARLINK : (starlinkMode ? COLOR_DIM : COLOR_DEFAULT));
+        satMesh.setColorAt(i, _c);
+      }
+      satMesh.instanceMatrix.needsUpdate = true;
+      satMesh.instanceColor.needsUpdate  = true;
+    }
 
     function updateSatelliteInstances() {
-      if (!satInstancedMesh) return;
+      if (!satMesh) return;
       const now = new Date();
       for (let i = 0; i < satRecords.length; i++) {
         const pv  = satellite.propagate(satRecords[i], now);
         const pos = pv.position;
-        if (!pos || isNaN(pos.x)) {
-          satInstancedMesh.setMatrixAt(i, hiddenMat);
-          satLastPositions[i] = null;
+        if (!pos || pos.x !== pos.x) {   // NaN check via self-inequality
+          satMesh.setMatrixAt(i, hiddenMat);
+          satLastPos[i] = null;
+          continue;
+        }
+        satLastPos[i] = pos;
+        const hide = starlinkMode && !satIsStarlink[i];
+        if (hide) {
+          satMesh.setMatrixAt(i, hiddenMat);
         } else {
           dummy.position.set(pos.x, pos.z, -pos.y);
           dummy.updateMatrix();
-          satInstancedMesh.setMatrixAt(i, dummy.matrix);
-          satLastPositions[i] = pos;
+          satMesh.setMatrixAt(i, dummy.matrix);
         }
+        _c.set(satIsStarlink[i] ? COLOR_STARLINK : (starlinkMode ? COLOR_DIM : COLOR_DEFAULT));
+        satMesh.setColorAt(i, _c);
       }
-      satInstancedMesh.instanceMatrix.needsUpdate = true;
+      satMesh.instanceMatrix.needsUpdate = true;
+      satMesh.instanceColor.needsUpdate  = true;
 
-      // update locked satellite highlight
       if (lockedSatIdx >= 0) {
-        const lpos = satLastPositions[lockedSatIdx];
+        const lpos = satLastPos[lockedSatIdx];
         if (lpos) {
           hlMesh.position.set(lpos.x, lpos.z, -lpos.y);
           hlGlow.position.copy(hlMesh.position);
@@ -408,40 +411,58 @@
       }
     }
 
-    function buildInstancedMesh(satellites) {
-      if (satInstancedMesh) {
-        scene.remove(satInstancedMesh);
-        satInstancedMesh.dispose();
-        satInstancedMesh = null;
+    function buildInstancedMesh(allSats) {
+      // ── tear down old mesh cleanly ────────────────────────────────────
+      if (satMesh) {
+        scene.remove(satMesh);
+        satMesh.dispose();
       }
+      if (satGeo)  { satGeo.dispose();  satGeo  = null; }
+      if (satMat)  { satMat.dispose();  satMat  = null; }
+      satMesh = null;
 
-      allSatelliteData = satellites;
-      const filtered = satellites.filter(s => s.name.trim().toUpperCase() !== 'ISS (ZARYA)');
-      satNames = [];
-      satRecords = [];
-      for (const s of filtered) {
+      // ── build arrays ─────────────────────────────────────────────────
+      satRecords    = [];
+      satNames      = [];
+      satIsStarlink = [];
+      starlinkCount = 0;
+
+      for (const s of allSats) {
+        if (s.name.trim().toUpperCase() === 'ISS (ZARYA)') continue;
         try {
-          satRecords.push(satellite.twoline2satrec(s.line1, s.line2));
+          const rec = satellite.twoline2satrec(s.line1, s.line2);
+          const isSL = s.name.trim().toUpperCase().startsWith('STARLINK');
+          satRecords.push(rec);
           satNames.push(s.name.trim());
-        } catch (e) {}
+          satIsStarlink.push(isSL);
+          if (isSL) starlinkCount++;
+        } catch (_) {}
       }
-      satLastPositions = new Array(satRecords.length).fill(null);
+      satLastPos = new Array(satRecords.length).fill(null);
 
       const count = satRecords.length;
-      document.getElementById('hud-count').textContent = count.toLocaleString() + ' sats';
-      console.log(`Rendering ${count} satellites via InstancedMesh`);
+      hudCountEl.textContent = count.toLocaleString() + ' sats';
+      starlinkCountEl.textContent = starlinkCount ? '  (' + starlinkCount.toLocaleString() + ')' : '';
+      console.log(`InstancedMesh: ${count} satellites (${starlinkCount} Starlink)`);
 
-      satInstancedMesh = new THREE.InstancedMesh(
-        new THREE.BoxGeometry(80, 80, 80),
-        new THREE.MeshBasicMaterial({ color: 0xffcc00 }),
-        count
-      );
-      satInstancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-      for (let i = 0; i < count; i++) satInstancedMesh.setMatrixAt(i, hiddenMat);
-      satInstancedMesh.instanceMatrix.needsUpdate = true;
-      scene.add(satInstancedMesh);
+      // ── create mesh ───────────────────────────────────────────────────
+      satGeo  = new THREE.BoxGeometry(80, 80, 80);
+      satMat  = new THREE.MeshBasicMaterial({ vertexColors: true });
+      satMesh = new THREE.InstancedMesh(satGeo, satMat, count);
+      satMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+      // initialise all instances hidden + coloured
+      for (let i = 0; i < count; i++) {
+        satMesh.setMatrixAt(i, hiddenMat);
+        satMesh.setColorAt(i, COLOR_DEFAULT);
+      }
+      satMesh.instanceMatrix.needsUpdate = true;
+      satMesh.instanceColor.needsUpdate  = true;
+      scene.add(satMesh);
       updateSatelliteInstances();
     }
+
+    let satIntervalId = null;
 
     async function initAllSatellites() {
       const res = await fetch('/api/satellites');
@@ -450,7 +471,13 @@
       if (!satIntervalId) satIntervalId = setInterval(updateSatelliteInstances, 3000);
     }
 
-    let satIntervalId = null;
+    // ── Starlink toggle ────────────────────────────────────────────────────
+    const starlinkToggle = document.getElementById('starlink-toggle');
+    starlinkToggle.addEventListener('click', () => {
+      starlinkMode = !starlinkMode;
+      starlinkToggle.classList.toggle('on', starlinkMode);
+      applyStarlinkFilter();
+    });
 
     // ── Refresh button ─────────────────────────────────────────────────────
     const refreshBtn = document.getElementById('refresh-btn');
@@ -458,19 +485,16 @@
       refreshBtn.disabled = true;
       refreshBtn.textContent = '↺ Refreshing…';
       lockedSatIdx = -1;
-      hlMesh.visible = false;
-      hlGlow.visible = false;
+      hlMesh.visible = hlGlow.visible = false;
       resetHUDToISS();
       document.getElementById('search-status').textContent = '';
       document.getElementById('search-input').value = '';
       document.getElementById('clear-btn').style.display = 'none';
       document.getElementById('search-btn').classList.remove('active');
-
       try {
         const res = await fetch('/api/satellites');
         if (res.ok) buildInstancedMesh(await res.json());
       } catch (e) { console.error('Refresh failed:', e); }
-
       refreshBtn.disabled = false;
       refreshBtn.textContent = '↺ Refresh Data';
     });
@@ -482,25 +506,17 @@
     const searchStatus = document.getElementById('search-status');
 
     function doSearch() {
-      const query = searchInput.value.trim().toUpperCase();
-      if (!query) { doClear(); return; }
-
-      const idx = satNames.findIndex(n => n.toUpperCase().includes(query));
-      if (idx === -1) {
-        searchStatus.textContent = 'No match found.';
-        return;
-      }
-
+      const q = searchInput.value.trim().toUpperCase();
+      if (!q) { doClear(); return; }
+      const idx = satNames.findIndex(n => n.toUpperCase().includes(q));
+      if (idx === -1) { searchStatus.textContent = 'No match found.'; return; }
       lockedSatIdx = idx;
       const name = satNames[idx];
       searchStatus.textContent = '✓ Locked: ' + name;
       searchBtn.classList.add('active');
       clearBtn.style.display = 'block';
-
-      hlMesh.visible = true;
-      hlGlow.visible = true;
-
-      const pos = satLastPositions[idx];
+      hlMesh.visible = hlGlow.visible = true;
+      const pos = satLastPos[idx];
       if (pos) {
         hlMesh.position.set(pos.x, pos.z, -pos.y);
         hlGlow.position.copy(hlMesh.position);
@@ -510,8 +526,7 @@
 
     function doClear() {
       lockedSatIdx = -1;
-      hlMesh.visible = false;
-      hlGlow.visible = false;
+      hlMesh.visible = hlGlow.visible = false;
       searchInput.value = '';
       searchStatus.textContent = '';
       clearBtn.style.display = 'none';
@@ -530,78 +545,84 @@
     const ttName    = document.getElementById('tt-name');
     const ttAlt     = document.getElementById('tt-alt');
 
-    renderer.domElement.addEventListener('mousemove', e => {
-      if (!satInstancedMesh) return;
-      mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    function onMouseMove(e) {
+      if (!satMesh) return;
+      mouse.x =  (e.clientX / innerWidth)  * 2 - 1;
+      mouse.y = -(e.clientY / innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
-      const hits = raycaster.intersectObject(satInstancedMesh);
+      const hits = raycaster.intersectObject(satMesh);
       if (hits.length > 0) {
         const id  = hits[0].instanceId;
-        const pos = satLastPositions[id];
-        const alt = pos ? (Math.sqrt(pos.x**2 + pos.y**2 + pos.z**2) - 6371).toFixed(1) + ' km' : '—';
-        ttName.textContent = satNames[id] || 'Unknown';
-        ttAlt.textContent  = 'ALT  ' + alt;
-        tooltip.style.display = 'block';
-        tooltip.style.left    = e.clientX + 'px';
-        tooltip.style.top     = e.clientY + 'px';
+        const pos = satLastPos[id];
+        const alt = pos ? (Math.sqrt(pos.x*pos.x + pos.y*pos.y + pos.z*pos.z) - 6371).toFixed(1) + ' km' : '—';
+        ttName.textContent        = satNames[id] || 'Unknown';
+        ttAlt.textContent         = 'ALT  ' + alt;
+        tooltip.style.display     = 'block';
+        tooltip.style.left        = e.clientX + 'px';
+        tooltip.style.top         = e.clientY + 'px';
         document.body.style.cursor = 'crosshair';
       } else {
-        tooltip.style.display = 'none';
+        tooltip.style.display     = 'none';
         document.body.style.cursor = 'default';
       }
-    });
-
-    renderer.domElement.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
+    }
+    function onMouseLeave() {
+      tooltip.style.display     = 'none';
       document.body.style.cursor = 'default';
-    });
+    }
+    renderer.domElement.addEventListener('mousemove',  onMouseMove);
+    renderer.domElement.addEventListener('mouseleave', onMouseLeave);
 
     // ── Resize ─────────────────────────────────────────────────────────────
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+    function onResize() {
+      camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+      renderer.setSize(innerWidth, innerHeight);
+    }
+    window.addEventListener('resize', onResize);
 
     // ── Render loop ────────────────────────────────────────────────────────
+    let rafId;
     (function animate() {
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     })();
 
     // ── ISS tracking ───────────────────────────────────────────────────────
-    let issRec = null;
+    let issRec      = null;
+    let issInterval = null;
 
     function updateISSMarker() {
       if (!issRec) return;
       const pv  = satellite.propagate(issRec, new Date());
       const pos = pv.position;
       if (!pos) return;
-      issMesh.position.set(pos.x, pos.z, -pos.y);
-      issGlow.position.set(pos.x, pos.z, -pos.y);
-      addTrailPoint(pos.x, pos.z, -pos.y);
+      const px = pos.x, py = pos.z, pz = -pos.y;
+      issMesh.position.set(px, py, pz);
+      issGlow.position.set(px, py, pz);
+      addTrailPoint(px, py, pz);
       if (lockedSatIdx === -1) updateHUD(pos);
     }
 
     async function initISS() {
       const res  = await fetch('/api/satellites');
-      if (!res.ok) { console.error('API error:', res.status); return; }
-      const data = await res.json();
-      const iss  = data.find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
-      if (!iss) { console.error('ISS not found'); return; }
-
+      if (!res.ok) { console.error('ISS fetch error:', res.status); return; }
+      const iss  = (await res.json()).find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
+      if (!iss)  { console.error('ISS not found'); return; }
       issRec = satellite.twoline2satrec(iss.line1, iss.line2);
+
+      // pre-populate one full orbit
       const now = Date.now(), ORBIT_MS = 92 * 60 * 1000;
       for (let t = now - ORBIT_MS; t <= now; t += 30000) {
         const pv = satellite.propagate(issRec, new Date(t));
         if (pv.position) addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
       }
       updateISSMarker();
-      setInterval(updateISSMarker, 5000);
+      issInterval = setInterval(updateISSMarker, 5000);
     }
 
+    // ── Boot ───────────────────────────────────────────────────────────────
     initISS();
     initAllSatellites();
   </script>
