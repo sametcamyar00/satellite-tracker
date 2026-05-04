@@ -8,20 +8,15 @@
     body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
     canvas { display: block; }
 
+    /* ── Left HUD ─────────────────────────────────────────────────────────── */
     #hud {
-      position: fixed;
-      top: 20px; left: 20px;
+      position: fixed; top: 20px; left: 20px;
       pointer-events: none;
       background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(0,255,255,0.25);
-      border-radius: 12px;
-      padding: 16px 20px;
-      width: 250px;
-      font-family: 'Courier New', monospace;
-      color: #fff;
-      z-index: 10;
+      border-radius: 12px; padding: 16px 20px; width: 250px;
+      font-family: 'Courier New', monospace; color: #fff; z-index: 10;
     }
     .hud-title {
       font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -57,10 +52,7 @@
       margin-top: 10px; padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
-    .hud-badge-label {
-      font-size: 10px; letter-spacing: 0.12em;
-      text-transform: uppercase; color: rgba(255,255,255,0.45);
-    }
+    .hud-badge-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
     .hud-badge {
       background: rgba(255,204,0,0.15); border: 1px solid rgba(255,204,0,0.45);
       border-radius: 20px; padding: 2px 10px;
@@ -68,58 +60,36 @@
       letter-spacing: 0.06em; font-variant-numeric: tabular-nums;
     }
 
-    /* ── interactive rows ─────────────────────────────────── */
+    /* interactive HUD rows */
     #starlink-row, #search-row, #refresh-row { pointer-events: auto; }
 
-    /* Starlink toggle */
     #starlink-row {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 12px; padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
-    #starlink-label {
-      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-      color: rgba(255,255,255,0.55);
-    }
+    #starlink-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+    #starlink-count { font-size: 10px; color: rgba(116,185,255,0.7); margin-left: 6px; font-variant-numeric: tabular-nums; }
     #starlink-toggle {
       position: relative; width: 40px; height: 20px; cursor: pointer;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 10px; transition: background 0.25s, border-color 0.25s;
-      flex-shrink: 0;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; transition: background 0.25s, border-color 0.25s; flex-shrink: 0;
     }
     #starlink-toggle::after {
-      content: ''; position: absolute;
-      top: 3px; left: 3px;
-      width: 12px; height: 12px;
-      background: rgba(255,255,255,0.5);
-      border-radius: 50%;
-      transition: transform 0.25s, background 0.25s;
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 12px; height: 12px; background: rgba(255,255,255,0.5);
+      border-radius: 50%; transition: transform 0.25s, background 0.25s;
     }
-    #starlink-toggle.on {
-      background: rgba(116,185,255,0.3);
-      border-color: rgba(116,185,255,0.7);
-    }
-    #starlink-toggle.on::after {
-      transform: translateX(20px);
-      background: #74b9ff;
-      box-shadow: 0 0 6px #74b9ff;
-    }
-    #starlink-count {
-      font-size: 10px; color: rgba(116,185,255,0.7);
-      margin-left: 8px; font-variant-numeric: tabular-nums;
-    }
+    #starlink-toggle.on { background: rgba(116,185,255,0.3); border-color: rgba(116,185,255,0.7); }
+    #starlink-toggle.on::after { transform: translateX(20px); background: #74b9ff; box-shadow: 0 0 6px #74b9ff; }
 
-    /* search */
     #search-row {
-      display: flex; gap: 6px;
-      margin-top: 10px; padding-top: 10px;
+      display: flex; gap: 6px; margin-top: 10px; padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
     #search-input {
-      flex: 1; background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
-      padding: 5px 8px; color: #fff;
+      flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px; padding: 5px 8px; color: #fff;
       font-family: 'Courier New', monospace; font-size: 11px; outline: none;
     }
     #search-input::placeholder { color: rgba(255,255,255,0.3); }
@@ -133,11 +103,8 @@
     }
     .hud-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
     .hud-btn.active { background: rgba(255,100,255,0.2); border-color: rgba(255,100,255,0.6); color: #ff6bff; }
-    #search-status {
-      font-size: 10px; color: rgba(255,100,255,0.8);
-      margin-top: 5px; min-height: 14px; pointer-events: none;
-    }
-    #refresh-row { margin-top: 8px; }
+    #search-status { font-size: 10px; color: rgba(255,100,255,0.8); margin-top: 5px; min-height: 14px; pointer-events: none; }
+    #refresh-row { margin-top: 8px; pointer-events: auto; }
     #refresh-btn {
       width: 100%; text-align: center;
       background: rgba(0,255,255,0.06); border: 1px solid rgba(0,255,255,0.2);
@@ -151,18 +118,126 @@
 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+    /* ── Tooltip ─────────────────────────────────────────────────────────── */
     #tooltip {
       position: fixed; pointer-events: none; display: none;
-      background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,204,0,0.4);
-      border-radius: 8px; padding: 9px 13px;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,204,0,0.4); border-radius: 8px; padding: 9px 13px;
       font-family: 'Courier New', monospace; font-size: 12px;
-      color: #fff; z-index: 20; white-space: nowrap;
-      transform: translate(14px,-50%);
+      color: #fff; z-index: 20; white-space: nowrap; transform: translate(14px,-50%);
     }
-    #tooltip .tt-name { font-weight:bold; color:#ffcc00; letter-spacing:0.05em; margin-bottom:4px; }
-    #tooltip .tt-alt  { font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.08em; }
+    #tooltip .tt-name { font-weight: bold; color: #ffcc00; letter-spacing: 0.05em; margin-bottom: 4px; }
+    #tooltip .tt-alt  { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; }
+
+    /* ── Right Country Sidebar ───────────────────────────────────────────── */
+    #sidebar {
+      position: fixed; top: 50%; right: 0;
+      transform: translateY(-50%);
+      display: flex; align-items: center;
+      z-index: 10; pointer-events: none;
+    }
+
+    /* collapse tab */
+    #sidebar-tab {
+      pointer-events: auto; cursor: pointer;
+      width: 26px; height: 56px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(0,255,255,0.7); font-size: 12px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    #sidebar-tab:hover { background: rgba(0,255,255,0.1); }
+    #sidebar-tab .tab-arrow { transition: transform 0.3s; display: inline-block; }
+    #sidebar.open #sidebar-tab .tab-arrow { transform: rotate(180deg); }
+
+    /* panel */
+    #sidebar-panel {
+      pointer-events: auto;
+      width: 0; overflow: hidden;
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+    }
+    #sidebar.open #sidebar-panel { width: 256px; }
+
+    #sidebar-inner {
+      width: 256px; padding: 20px 18px;
+      font-family: 'Courier New', monospace; color: #fff;
+    }
+
+    .sb-title {
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sb-title::before {
+      content: ''; display: inline-block;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,0,255,0.7); box-shadow: 0 0 5px #ff00ff;
+    }
+
+    #country-select {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      outline: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.4)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    #country-select:focus { border-color: rgba(255,0,255,0.5); }
+    #country-select option { background: #111; color: #fff; }
+
+    #country-status {
+      font-size: 10px; color: rgba(255,0,255,0.75);
+      min-height: 14px; margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .sb-btn-row {
+      display: flex; gap: 8px; margin-top: 4px;
+    }
+    .sb-btn {
+      flex: 1; padding: 7px 0; text-align: center;
+      border-radius: 7px; font-family: 'Courier New', monospace;
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    #apply-btn {
+      background: rgba(255,0,255,0.15); border: 1px solid rgba(255,0,255,0.4);
+      color: #ff6bff;
+    }
+    #apply-btn:hover { background: rgba(255,0,255,0.28); border-color: rgba(255,0,255,0.7); }
+    #clear-country-btn {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.6);
+    }
+    #clear-country-btn:hover { background: rgba(255,255,255,0.13); }
+
+    .sb-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 14px 0; }
+
+    #filter-info {
+      font-size: 10px; color: rgba(255,255,255,0.4);
+      line-height: 1.6; letter-spacing: 0.03em;
+    }
+    #filter-info span { color: #ff6bff; font-weight: bold; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
@@ -175,9 +250,10 @@
     <div class="tt-alt"  id="tt-alt"></div>
   </div>
 
+  <!-- Left HUD -->
   <div id="hud">
     <div class="hud-title">Live Tracking</div>
-    <div id="hud-name"><span class="hud-dot" id="hud-dot"></span>ISS (ZARYA)</div>
+    <div id="hud-name"><span class="hud-dot"></span>ISS (ZARYA)</div>
     <hr class="hud-divider">
     <div class="hud-row"><span class="hud-label">Altitude</span><span class="hud-value" id="hud-alt">— km</span></div>
     <hr class="hud-divider">
@@ -188,24 +264,41 @@
       <span class="hud-badge-label">Tracking</span>
       <span class="hud-badge" id="hud-count">—</span>
     </div>
-
-    <!-- Starlink filter -->
     <div id="starlink-row">
       <span id="starlink-label">Starlink only<span id="starlink-count"></span></span>
       <div id="starlink-toggle"></div>
     </div>
-
-    <!-- Search -->
     <div id="search-row">
       <input id="search-input" type="text" placeholder="Search satellite…" autocomplete="off">
       <button class="hud-btn" id="search-btn">Find</button>
       <button class="hud-btn" id="clear-btn" style="display:none">✕</button>
     </div>
     <div id="search-status"></div>
-
-    <!-- Refresh -->
     <div id="refresh-row">
       <button id="refresh-btn">↺ Refresh Data</button>
+    </div>
+  </div>
+
+  <!-- Right Country Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-tab"><span class="tab-arrow">◀</span></div>
+    <div id="sidebar-panel">
+      <div id="sidebar-inner">
+        <div class="sb-title">Filter by Country</div>
+        <select id="country-select">
+          <option value="">— All Countries —</option>
+        </select>
+        <div id="country-status"></div>
+        <div class="sb-btn-row">
+          <button class="sb-btn" id="apply-btn">Apply</button>
+          <button class="sb-btn" id="clear-country-btn">Clear</button>
+        </div>
+        <hr class="sb-divider">
+        <div id="filter-info">
+          Select a country code and press <span>Apply</span> to isolate its satellites.<br><br>
+          Matching satellites appear in <span>magenta</span> at 1.5× scale.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -213,14 +306,14 @@
     // ── Constants ──────────────────────────────────────────────────────────
     const COLOR_DEFAULT  = new THREE.Color(0xffcc00);
     const COLOR_STARLINK = new THREE.Color(0x74b9ff);
-    const COLOR_DIM      = new THREE.Color(0x222222);
+    const COLOR_COUNTRY  = new THREE.Color(0xff00ff);
     const TRAIL_LENGTH   = 200;
 
     // ── Scene ──────────────────────────────────────────────────────────────
-    const scene    = new THREE.Scene();
+    const scene  = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const camera   = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 100, 1e6);
+    const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 100, 1000000);
     camera.position.set(0, 0, 20000);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -279,16 +372,16 @@
     scene.add(issGlow);
 
     // ── Orbital trail (zero-allocation after init) ─────────────────────────
-    const trailBuf = new Float32Array(TRAIL_LENGTH * 3);
+    const trailBuf  = new Float32Array(TRAIL_LENGTH * 3);
     const trailAttr = new THREE.BufferAttribute(trailBuf, 3);
     trailAttr.setUsage(THREE.DynamicDrawUsage);
-    const trailGeo = new THREE.BufferGeometry();
+    const trailGeo  = new THREE.BufferGeometry();
     trailGeo.setAttribute('position', trailAttr);
     trailGeo.setDrawRange(0, 0);
     scene.add(new THREE.Line(trailGeo,
       new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true })));
-
     let trailHead = 0, trailCount = 0;
+
     function addTrailPoint(x, y, z) {
       trailBuf[trailHead*3]   = x;
       trailBuf[trailHead*3+1] = y;
@@ -310,12 +403,12 @@
     scene.add(hlGlow);
 
     // ── HUD refs ───────────────────────────────────────────────────────────
-    const hudNameEl    = document.getElementById('hud-name');
-    const hudAlt       = document.getElementById('hud-alt');
-    const hudX         = document.getElementById('hud-x');
-    const hudY         = document.getElementById('hud-y');
-    const hudZ         = document.getElementById('hud-z');
-    const hudCountEl   = document.getElementById('hud-count');
+    const hudNameEl       = document.getElementById('hud-name');
+    const hudAlt          = document.getElementById('hud-alt');
+    const hudX            = document.getElementById('hud-x');
+    const hudY            = document.getElementById('hud-y');
+    const hudZ            = document.getElementById('hud-z');
+    const hudCountEl      = document.getElementById('hud-count');
     const starlinkCountEl = document.getElementById('starlink-count');
 
     let lockedSatIdx = -1;
@@ -342,35 +435,36 @@
     }
 
     // ── InstancedMesh state ────────────────────────────────────────────────
-    let satMesh         = null;     // THREE.InstancedMesh
-    let satGeo          = null;     // BoxGeometry — owned, must be disposed
-    let satMat          = null;     // MeshBasicMaterial — owned, must be disposed
-    let satRecords      = [];       // satrec[]
-    let satNames        = [];       // string[]
-    let satIsStarlink   = [];       // bool[]
-    let satLastPos      = [];       // {x,y,z}|null[]
-    let starlinkCount   = 0;
-    let starlinkMode    = false;
+    let satMesh       = null;
+    let satGeo        = null;
+    let satMat        = null;
+    let satRecords    = [];
+    let satNames      = [];
+    let satIsStarlink = [];
+    let satCountries  = [];   // country code per satellite
+    let satLastPos    = [];
+    let starlinkCount = 0;
+    let starlinkMode  = false;
+    let countryFilter = '';   // '' = no filter
 
-    const dummy      = new THREE.Object3D();       // reused — no allocation per frame
-    const hiddenMat  = new THREE.Matrix4().makeScale(0, 0, 0);  // reused
-    const _c         = new THREE.Color();          // scratch color — reused
+    const dummy = new THREE.Object3D();
+    const _c    = new THREE.Color();
 
-    function applyStarlinkFilter() {
-      if (!satMesh) return;
-      for (let i = 0; i < satRecords.length; i++) {
-        const pos = satLastPos[i];
-        if (!pos) continue;
-        const hide = starlinkMode && !satIsStarlink[i];
-        dummy.position.set(pos.x, pos.z, -pos.y);
-        dummy.scale.set(hide ? 0 : 1, hide ? 0 : 1, hide ? 0 : 1);
-        dummy.updateMatrix();
-        satMesh.setMatrixAt(i, dummy.matrix);
-        _c.set(satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT);
-        satMesh.setColorAt(i, _c);
+    // Determine per-instance color + visibility given current filter state
+    function instanceState(i) {
+      if (countryFilter) {
+        // Country filter active — overrides Starlink toggle
+        const match = satCountries[i] === countryFilter;
+        return { hide: !match, scale: match ? 1.5 : 0, color: COLOR_COUNTRY };
       }
-      satMesh.instanceMatrix.needsUpdate = true;
-      satMesh.instanceColor.needsUpdate  = true;
+      if (starlinkMode) {
+        const isSL = satIsStarlink[i];
+        return { hide: !isSL, scale: isSL ? 1 : 0, color: COLOR_STARLINK };
+      }
+      return {
+        hide: false, scale: 1,
+        color: satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT
+      };
     }
 
     function updateSatelliteInstances() {
@@ -379,7 +473,7 @@
       for (let i = 0; i < satRecords.length; i++) {
         const pv  = satellite.propagate(satRecords[i], now);
         const pos = pv.position;
-        if (!pos || pos.x !== pos.x) {   // NaN check via self-inequality
+        if (!pos || pos.x !== pos.x) {
           dummy.position.set(0, 0, 0);
           dummy.scale.set(0, 0, 0);
           dummy.updateMatrix();
@@ -388,12 +482,12 @@
           continue;
         }
         satLastPos[i] = pos;
-        const hide = starlinkMode && !satIsStarlink[i];
+        const { hide, scale, color } = instanceState(i);
         dummy.position.set(pos.x, pos.z, -pos.y);
-        dummy.scale.set(hide ? 0 : 1, hide ? 0 : 1, hide ? 0 : 1);
+        dummy.scale.set(hide ? 0 : scale, hide ? 0 : scale, hide ? 0 : scale);
         dummy.updateMatrix();
         satMesh.setMatrixAt(i, dummy.matrix);
-        _c.set(satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT);
+        _c.set(color);
         satMesh.setColorAt(i, _c);
       }
       satMesh.instanceMatrix.needsUpdate = true;
@@ -409,47 +503,62 @@
       }
     }
 
-    function buildInstancedMesh(allSats) {
-      // ── tear down old mesh cleanly ────────────────────────────────────
-      if (satMesh) {
-        scene.remove(satMesh);
-        satMesh.dispose();
+    // Re-apply current filter without re-propagating (instant visual toggle)
+    function recolorInstances() {
+      if (!satMesh) return;
+      for (let i = 0; i < satRecords.length; i++) {
+        const pos = satLastPos[i];
+        if (!pos) continue;
+        const { hide, scale, color } = instanceState(i);
+        dummy.position.set(pos.x, pos.z, -pos.y);
+        dummy.scale.set(hide ? 0 : scale, hide ? 0 : scale, hide ? 0 : scale);
+        dummy.updateMatrix();
+        satMesh.setMatrixAt(i, dummy.matrix);
+        _c.set(color);
+        satMesh.setColorAt(i, _c);
       }
+      satMesh.instanceMatrix.needsUpdate = true;
+      satMesh.instanceColor.needsUpdate  = true;
+    }
+
+    function buildInstancedMesh(allSats) {
+      if (satMesh) { scene.remove(satMesh); satMesh.dispose(); }
       if (satGeo)  { satGeo.dispose();  satGeo  = null; }
       if (satMat)  { satMat.dispose();  satMat  = null; }
       satMesh = null;
 
-      // ── build arrays ─────────────────────────────────────────────────
       satRecords    = [];
       satNames      = [];
       satIsStarlink = [];
+      satCountries  = [];
       starlinkCount = 0;
 
       for (const s of allSats) {
         if (s.name.trim().toUpperCase() === 'ISS (ZARYA)') continue;
         try {
-          const rec = satellite.twoline2satrec(s.line1, s.line2);
+          const rec  = satellite.twoline2satrec(s.line1, s.line2);
           const isSL = s.name.trim().toUpperCase().startsWith('STARLINK');
           satRecords.push(rec);
           satNames.push(s.name.trim());
           satIsStarlink.push(isSL);
+          satCountries.push((s.country || '').toUpperCase().trim());
           if (isSL) starlinkCount++;
         } catch (_) {}
       }
       satLastPos = new Array(satRecords.length).fill(null);
 
       const count = satRecords.length;
-      hudCountEl.textContent = count.toLocaleString() + ' sats';
-      starlinkCountEl.textContent = starlinkCount ? '  (' + starlinkCount.toLocaleString() + ')' : '';
+      hudCountEl.textContent    = count.toLocaleString() + ' sats';
+      starlinkCountEl.textContent = starlinkCount ? ' (' + starlinkCount.toLocaleString() + ')' : '';
       console.log(`InstancedMesh: ${count} satellites (${starlinkCount} Starlink)`);
 
-      // ── create mesh ───────────────────────────────────────────────────
+      populateCountryDropdown();
+
       satGeo  = new THREE.BoxGeometry(80, 80, 80);
       satMat  = new THREE.MeshBasicMaterial({ color: 0xffffff });
       satMesh = new THREE.InstancedMesh(satGeo, satMat, count);
       satMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-      // initialise all instances hidden + coloured
       dummy.position.set(0, 0, 0);
       dummy.scale.set(0, 0, 0);
       dummy.updateMatrix();
@@ -457,7 +566,7 @@
         satMesh.setMatrixAt(i, dummy.matrix);
         satMesh.setColorAt(i, COLOR_DEFAULT);
       }
-      dummy.scale.set(1, 1, 1); // restore scale for subsequent use
+      dummy.scale.set(1, 1, 1);
       satMesh.instanceMatrix.needsUpdate = true;
       satMesh.instanceColor.needsUpdate  = true;
       scene.add(satMesh);
@@ -473,15 +582,71 @@
       if (!satIntervalId) satIntervalId = setInterval(updateSatelliteInstances, 3000);
     }
 
+    // ── Country dropdown ───────────────────────────────────────────────────
+    const countrySelect  = document.getElementById('country-select');
+    const countryStatus  = document.getElementById('country-status');
+
+    function populateCountryDropdown() {
+      const unique = [...new Set(satCountries.filter(c => c))].sort();
+      countrySelect.innerHTML = '<option value="">— All Countries —</option>';
+      unique.forEach(code => {
+        const opt = document.createElement('option');
+        opt.value       = code;
+        opt.textContent = code;
+        countrySelect.appendChild(opt);
+      });
+      // restore previous selection if it still exists
+      if (countryFilter && unique.includes(countryFilter)) {
+        countrySelect.value = countryFilter;
+      }
+    }
+
+    function applyCountryFilter() {
+      const sel = countrySelect.value;
+      countryFilter = sel;
+      if (!sel) {
+        countryStatus.textContent = '';
+        document.getElementById('filter-info').innerHTML =
+          'Select a country code and press <span>Apply</span> to isolate its satellites.<br><br>' +
+          'Matching satellites appear in <span>magenta</span> at 1.5× scale.';
+      } else {
+        const matchCount = satCountries.filter(c => c === sel).length;
+        countryStatus.textContent = `✓ ${matchCount.toLocaleString()} satellites`;
+        document.getElementById('filter-info').innerHTML =
+          `Showing <span>${sel}</span> satellites only.<br><br>` +
+          `<span>${matchCount.toLocaleString()}</span> objects tracked.`;
+      }
+      recolorInstances();
+    }
+
+    function clearCountryFilter() {
+      countryFilter = '';
+      countrySelect.value = '';
+      countryStatus.textContent = '';
+      document.getElementById('filter-info').innerHTML =
+        'Select a country code and press <span>Apply</span> to isolate its satellites.<br><br>' +
+        'Matching satellites appear in <span>magenta</span> at 1.5× scale.';
+      recolorInstances();
+    }
+
+    document.getElementById('apply-btn').addEventListener('click', applyCountryFilter);
+    document.getElementById('clear-country-btn').addEventListener('click', clearCountryFilter);
+    countrySelect.addEventListener('keydown', e => { if (e.key === 'Enter') applyCountryFilter(); });
+
+    // ── Sidebar toggle ─────────────────────────────────────────────────────
+    const sidebar    = document.getElementById('sidebar');
+    const sidebarTab = document.getElementById('sidebar-tab');
+    sidebarTab.addEventListener('click', () => sidebar.classList.toggle('open'));
+
     // ── Starlink toggle ────────────────────────────────────────────────────
     const starlinkToggle = document.getElementById('starlink-toggle');
     starlinkToggle.addEventListener('click', () => {
       starlinkMode = !starlinkMode;
       starlinkToggle.classList.toggle('on', starlinkMode);
-      applyStarlinkFilter();
+      recolorInstances();
     });
 
-    // ── Refresh button ─────────────────────────────────────────────────────
+    // ── Refresh ────────────────────────────────────────────────────────────
     const refreshBtn = document.getElementById('refresh-btn');
     refreshBtn.addEventListener('click', async () => {
       refreshBtn.disabled = true;
@@ -493,6 +658,7 @@
       document.getElementById('search-input').value = '';
       document.getElementById('clear-btn').style.display = 'none';
       document.getElementById('search-btn').classList.remove('active');
+      clearCountryFilter();
       try {
         const res = await fetch('/api/satellites');
         if (res.ok) buildInstancedMesh(await res.json());
@@ -557,7 +723,8 @@
         const id  = hits[0].instanceId;
         const pos = satLastPos[id];
         const alt = pos ? (Math.sqrt(pos.x*pos.x + pos.y*pos.y + pos.z*pos.z) - 6371).toFixed(1) + ' km' : '—';
-        ttName.textContent        = satNames[id] || 'Unknown';
+        const country = satCountries[id] ? ` [${satCountries[id]}]` : '';
+        ttName.textContent        = (satNames[id] || 'Unknown') + country;
         ttAlt.textContent         = 'ALT  ' + alt;
         tooltip.style.display     = 'block';
         tooltip.style.left        = e.clientX + 'px';
@@ -576,24 +743,21 @@
     renderer.domElement.addEventListener('mouseleave', onMouseLeave);
 
     // ── Resize ─────────────────────────────────────────────────────────────
-    function onResize() {
+    window.addEventListener('resize', () => {
       camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
-    }
-    window.addEventListener('resize', onResize);
+    });
 
     // ── Render loop ────────────────────────────────────────────────────────
-    let rafId;
     (function animate() {
-      rafId = requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     })();
 
     // ── ISS tracking ───────────────────────────────────────────────────────
-    let issRec      = null;
-    let issInterval = null;
+    let issRec = null;
 
     function updateISSMarker() {
       if (!issRec) return;
@@ -613,15 +777,13 @@
       const iss  = (await res.json()).find(s => s.name.trim().toUpperCase() === 'ISS (ZARYA)');
       if (!iss)  { console.error('ISS not found'); return; }
       issRec = satellite.twoline2satrec(iss.line1, iss.line2);
-
-      // pre-populate one full orbit
       const now = Date.now(), ORBIT_MS = 92 * 60 * 1000;
       for (let t = now - ORBIT_MS; t <= now; t += 30000) {
         const pv = satellite.propagate(issRec, new Date(t));
         if (pv.position) addTrailPoint(pv.position.x, pv.position.z, -pv.position.y);
       }
       updateISSMarker();
-      issInterval = setInterval(updateISSMarker, 5000);
+      setInterval(updateISSMarker, 5000);
     }
 
     // ── Boot ───────────────────────────────────────────────────────────────
