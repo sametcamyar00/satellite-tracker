@@ -238,6 +238,53 @@
       line-height: 1.6; letter-spacing: 0.03em;
     }
     #filter-info span { color: #ff6bff; font-weight: bold; }
+
+    /* sidebar scrollable */
+    #sidebar-panel { overflow: hidden; }
+    #sidebar-inner { overflow-y: auto; max-height: 92vh; scrollbar-width: thin; scrollbar-color: rgba(0,255,255,0.2) transparent; }
+    #sidebar-inner::-webkit-scrollbar { width: 4px; }
+    #sidebar-inner::-webkit-scrollbar-track { background: transparent; }
+    #sidebar-inner::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.2); border-radius: 2px; }
+
+    /* type section title dot — green */
+    .sb-title.type-title::before { background: rgba(0,255,0,0.7); box-shadow: 0 0 5px #00ff00; }
+
+    /* type filter buttons — 2×2 grid */
+    #type-btn-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px;
+    }
+    .type-btn {
+      padding: 8px 4px; text-align: center; border-radius: 8px;
+      font-family: 'Courier New', monospace; font-size: 10px;
+      letter-spacing: 0.04em; cursor: pointer;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.5;
+    }
+    .type-btn .btn-emoji { display: block; font-size: 15px; margin-bottom: 3px; }
+    .type-btn:hover { background: rgba(0,255,0,0.1); border-color: rgba(0,255,0,0.35); color: #fff; }
+    .type-btn.active {
+      background: rgba(0,255,0,0.18); border-color: rgba(0,255,0,0.6); color: #00ff00;
+      box-shadow: 0 0 8px rgba(0,255,0,0.2);
+    }
+
+    #type-status {
+      font-size: 10px; color: rgba(0,255,0,0.75);
+      min-height: 14px; margin-bottom: 10px; letter-spacing: 0.05em;
+    }
+
+    /* clear all */
+    #clear-all-btn {
+      width: 100%; padding: 8px; text-align: center;
+      border-radius: 8px; font-family: 'Courier New', monospace;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3);
+      color: rgba(255,120,120,0.8);
+      transition: background 0.15s;
+    }
+    #clear-all-btn:hover { background: rgba(255,80,80,0.22); border-color: rgba(255,80,80,0.55); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
@@ -279,11 +326,13 @@
     </div>
   </div>
 
-  <!-- Right Country Sidebar -->
+  <!-- Right Sidebar -->
   <div id="sidebar">
     <div id="sidebar-tab"><span class="tab-arrow">◀</span></div>
     <div id="sidebar-panel">
       <div id="sidebar-inner">
+
+        <!-- Country filter -->
         <div class="sb-title">Filter by Country</div>
         <select id="country-select">
           <option value="">— All Countries —</option>
@@ -295,9 +344,33 @@
         </div>
         <hr class="sb-divider">
         <div id="filter-info">
-          Select a country code and press <span>Apply</span> to isolate its satellites.<br><br>
+          Select a country and press <span>Apply</span> to isolate.<br><br>
           Matching satellites appear in <span>magenta</span> at 1.5× scale.
         </div>
+
+        <!-- Type filter -->
+        <hr class="sb-divider">
+        <div class="sb-title type-title">Filter by Type</div>
+        <div id="type-btn-grid">
+          <button class="type-btn" data-key="nav">
+            <span class="btn-emoji">🛰</span>Navigation
+          </button>
+          <button class="type-btn" data-key="com">
+            <span class="btn-emoji">📡</span>Comms
+          </button>
+          <button class="type-btn" data-key="obs">
+            <span class="btn-emoji">🔭</span>Observation
+          </button>
+          <button class="type-btn" data-key="sta">
+            <span class="btn-emoji">🏠</span>Stations
+          </button>
+        </div>
+        <div id="type-status"></div>
+
+        <!-- Clear all -->
+        <hr class="sb-divider">
+        <button id="clear-all-btn">✕ Clear All Filters</button>
+
       </div>
     </div>
   </div>
@@ -307,7 +380,32 @@
     const COLOR_DEFAULT  = new THREE.Color(0xffcc00);
     const COLOR_STARLINK = new THREE.Color(0x74b9ff);
     const COLOR_COUNTRY  = new THREE.Color(0xff00ff);
+    const COLOR_TYPE     = new THREE.Color(0x00ff00);
     const TRAIL_LENGTH   = 200;
+
+    // ── CelesTrak country code → flag emoji ───────────────────────────────
+    const FLAG_MAP = {
+      'US':   '🇺🇸', 'CIS':  '🇷🇺', 'PRC':  '🇨🇳', 'UK':   '🇬🇧',
+      'FR':   '🇫🇷', 'GER':  '🇩🇪', 'JPN':  '🇯🇵', 'IND':  '🇮🇳',
+      'CAN':  '🇨🇦', 'TURK': '🇹🇷', 'ESA':  '🇪🇺', 'AUS':  '🇦🇺',
+      'BRA':  '🇧🇷', 'SPN':  '🇪🇸', 'ISRA': '🇮🇱', 'KOR':  '🇰🇷',
+      'UAE':  '🇦🇪', 'SWE':  '🇸🇪', 'NOR':  '🇳🇴', 'NLD':  '🇳🇱',
+      'ITA':  '🇮🇹', 'PAKI': '🇵🇰', 'IRAN': '🇮🇷', 'SAUD': '🇸🇦',
+      'SING': '🇸🇬', 'MALA': '🇲🇾', 'THAI': '🇹🇭', 'MEX':  '🇲🇽',
+      'ARG':  '🇦🇷', 'CHLE': '🇨🇱', 'NKOR': '🇰🇵', 'DEN':  '🇩🇰',
+      'FIN':  '🇫🇮', 'BEL':  '🇧🇪', 'AUT':  '🇦🇹', 'POR':  '🇵🇹',
+      'GRC':  '🇬🇷', 'POL':  '🇵🇱', 'CZE':  '🇨🇿', 'HUN':  '🇭🇺',
+      'ISS':  '🌍', 'NATO': '🌐', 'ITSO': '🌐', 'EUTE': '🌐',
+      'GLOB': '🌐', 'ORB':  '🛰',
+    };
+
+    // ── Type filter definitions ────────────────────────────────────────────
+    const TYPE_FILTERS = {
+      nav: { label: 'Navigation',  terms: ['GPS', 'GLONASS', 'GALILEO', 'BEIDOU'] },
+      com: { label: 'Comms',       terms: ['STARLINK', 'ONEWEB', 'IRIDIUM', 'TURKSAT'] },
+      obs: { label: 'Observation', terms: ['GOKTURK', 'IMECE', 'LANDSAT', 'SENTINEL'] },
+      sta: { label: 'Stations',    terms: ['ISS', 'CSS', 'TIANGONG'] },
+    };
 
     // ── Scene ──────────────────────────────────────────────────────────────
     const scene  = new THREE.Scene();
@@ -445,15 +543,23 @@
     let satLastPos    = [];
     let starlinkCount = 0;
     let starlinkMode  = false;
-    let countryFilter = '';   // '' = no filter
+    let countryFilter = '';    // '' = no filter
+    let typeFilter    = null;  // null | key of TYPE_FILTERS
+
+    // pre-computed per-satellite type membership (rebuilt in buildInstancedMesh)
+    let satTypeMatch  = [];    // bool[] — true if name matches active type terms
 
     const dummy = new THREE.Object3D();
     const _c    = new THREE.Color();
 
     // Determine per-instance color + visibility given current filter state
+    // Priority: typeFilter > countryFilter > starlinkMode > default
     function instanceState(i) {
+      if (typeFilter) {
+        const match = satTypeMatch[i];
+        return { hide: !match, scale: match ? 1.5 : 0, color: COLOR_TYPE };
+      }
       if (countryFilter) {
-        // Country filter active — overrides Starlink toggle
         const match = satCountries[i] === countryFilter;
         return { hide: !match, scale: match ? 1.5 : 0, color: COLOR_COUNTRY };
       }
@@ -465,6 +571,16 @@
         hide: false, scale: 1,
         color: satIsStarlink[i] ? COLOR_STARLINK : COLOR_DEFAULT
       };
+    }
+
+    // Recompute satTypeMatch[] for the current typeFilter key (call after typeFilter changes)
+    function rebuildTypeMatch() {
+      if (!typeFilter) { satTypeMatch = []; return; }
+      const terms = TYPE_FILTERS[typeFilter].terms;
+      satTypeMatch = satNames.map(n => {
+        const up = n.toUpperCase();
+        return terms.some(t => up.includes(t));
+      });
     }
 
     function updateSatelliteInstances() {
@@ -590,12 +706,12 @@
       const unique = [...new Set(satCountries.filter(c => c))].sort();
       countrySelect.innerHTML = '<option value="">— All Countries —</option>';
       unique.forEach(code => {
+        const flag = FLAG_MAP[code] || '🌐';
         const opt = document.createElement('option');
         opt.value       = code;
-        opt.textContent = code;
+        opt.textContent = flag + ' ' + code;
         countrySelect.appendChild(opt);
       });
-      // restore previous selection if it still exists
       if (countryFilter && unique.includes(countryFilter)) {
         countrySelect.value = countryFilter;
       }
@@ -633,6 +749,51 @@
     document.getElementById('clear-country-btn').addEventListener('click', clearCountryFilter);
     countrySelect.addEventListener('keydown', e => { if (e.key === 'Enter') applyCountryFilter(); });
 
+    // ── Type filter ────────────────────────────────────────────────────────
+    const typeStatusEl = document.getElementById('type-status');
+    const typeButtons  = document.querySelectorAll('.type-btn');
+
+    function applyTypeFilter(key) {
+      typeFilter = key;
+      rebuildTypeMatch();
+      // update button active states
+      typeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.key === key));
+      const matchCount = satTypeMatch.filter(Boolean).length;
+      typeStatusEl.textContent = `✓ ${matchCount.toLocaleString()} satellites`;
+      recolorInstances();
+    }
+
+    function clearTypeFilter() {
+      typeFilter = null;
+      satTypeMatch = [];
+      typeButtons.forEach(btn => btn.classList.remove('active'));
+      typeStatusEl.textContent = '';
+      recolorInstances();
+    }
+
+    typeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (typeFilter === btn.dataset.key) {
+          clearTypeFilter();           // toggle off if same button clicked again
+        } else {
+          applyTypeFilter(btn.dataset.key);
+        }
+      });
+    });
+
+    // ── Clear all filters ─────────────────────────────────────────────────
+    function clearAllFilters() {
+      clearCountryFilter();
+      clearTypeFilter();
+      if (starlinkMode) {
+        starlinkMode = false;
+        starlinkToggle.classList.remove('on');
+        recolorInstances();
+      }
+    }
+
+    document.getElementById('clear-all-btn').addEventListener('click', clearAllFilters);
+
     // ── Sidebar toggle ─────────────────────────────────────────────────────
     const sidebar    = document.getElementById('sidebar');
     const sidebarTab = document.getElementById('sidebar-tab');
@@ -658,7 +819,7 @@
       document.getElementById('search-input').value = '';
       document.getElementById('clear-btn').style.display = 'none';
       document.getElementById('search-btn').classList.remove('active');
-      clearCountryFilter();
+      clearAllFilters();
       try {
         const res = await fetch('/api/satellites');
         if (res.ok) buildInstancedMesh(await res.json());
